@@ -12,7 +12,6 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, File, Query, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from openai import OpenAIError
 from sqlalchemy import func, or_, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
@@ -22,7 +21,8 @@ from pydantic import ValidationError
 from api.analysis import (
     AnalysisContent,
     AnalysisProvider,
-    OpenAIAnalysisProvider,
+    AnalysisProviderError,
+    OllamaAnalysisProvider,
     ProviderConfigurationError,
 )
 from api.schemas import (
@@ -153,7 +153,7 @@ def create_app(
     )
     app.state.session_factory = session_factory
     app.state.engine = database_engine
-    app.state.analysis_provider = analysis_provider or OpenAIAnalysisProvider.from_environment()
+    app.state.analysis_provider = analysis_provider or OllamaAnalysisProvider.from_environment()
 
     @app.exception_handler(ApiError)
     async def handle_api_error(_request: Request, error: ApiError) -> JSONResponse:
@@ -467,9 +467,9 @@ def create_app(
             content: AnalysisContent = app.state.analysis_provider.analyze(lead, payload.context)
         except ProviderConfigurationError as error:
             raise ApiError(503, "AI_PROVIDER_NOT_CONFIGURED", str(error)) from error
-        except OpenAIError as error:
+        except AnalysisProviderError as error:
             logger.warning("AI provider request failed (%s)", type(error).__name__)
-            raise ApiError(502, "AI_PROVIDER_ERROR", "Company analysis could not be generated.") from error
+            raise ApiError(502, "AI_PROVIDER_ERROR", str(error)) from error
         except (ValueError, UnicodeDecodeError) as error:
             logger.warning("AI provider response was invalid (%s)", type(error).__name__)
             raise ApiError(502, "AI_PROVIDER_ERROR", "Company analysis could not be generated.") from error

@@ -8,7 +8,11 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from sqlalchemy.pool import StaticPool
 
-from api.analysis import AnalysisContent, ProviderConfigurationError
+from api.analysis import (
+    AnalysisContent,
+    AnalysisProviderError,
+    ProviderConfigurationError,
+)
 from db.database import create_database_engine
 from db.models import Base, CompanyInsight, ImportBatch, Lead, LeadScore
 from main import create_app
@@ -26,6 +30,11 @@ class StubAnalysisProvider:
 class FailingAnalysisProvider:
     def analyze(self, lead: Lead, context: str | None) -> AnalysisContent:
         raise ProviderConfigurationError("Provider unavailable.")
+
+
+class UnavailableOllamaProvider:
+    def analyze(self, lead: Lead, context: str | None) -> AnalysisContent:
+        raise AnalysisProviderError("Could not reach Ollama. Start Ollama.")
 
 
 @pytest.fixture
@@ -222,6 +231,27 @@ def test_analysis_provider_failure_never_returns_success_or_persists(
     response = client.post(f"/api/v1/leads/{lead['lead_id']}/analysis", json={})
     assert response.status_code == 503
     assert response.json()["error"]["code"] == "AI_PROVIDER_NOT_CONFIGURED"
+
+
+def test_ollama_failure_returns_explicit_error_without_saving_analysis(
+    client: TestClient,
+) -> None:
+    lead = create_lead(client)
+    client.app.state.analysis_provider = UnavailableOllamaProvider()
+
+    response = client.post(
+        f"/api/v1/leads/{lead['lead_id']}/analysis",
+        json={"context": "Synthetic test"},
+    )
+
+    assert response.status_code == 502
+    assert response.json()["error"]["code"] == "AI_PROVIDER_ERROR"
+    assert "Start Ollama" in response.json()["error"]["message"]
+    with Session(client.app.state.engine) as session:
+        saved_count = session.scalar(
+            select(func.count()).select_from(CompanyInsight)
+        )
+    assert saved_count == 0
     saved = client.get(f"/api/v1/leads/{lead['lead_id']}/analysis")
     assert saved.status_code == 404
 
