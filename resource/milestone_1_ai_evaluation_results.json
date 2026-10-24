@@ -1,0 +1,1004 @@
+{
+  "generated_at": "2026-10-24T07:04:36.295862+00:00",
+  "dataset": "C:\\Users\\parvathraj\\Downloads\\SalesGenie\\resource\\milestone_1_ai_evaluation_set.csv",
+  "api_base_url": "http://127.0.0.1:18001",
+  "model": "llama3.2:latest",
+  "case_count": 20,
+  "manageable_pass_count": 20,
+  "manageable_failure_count": 0,
+  "accuracy_review_status": "complete (requester-reported aggregate)",
+  "human_review_summary": {
+    "status": "reported complete",
+    "accurate_count": 20,
+    "case_count": 20,
+    "accuracy_rate_percent": 100,
+    "rubric_and_dataset_approval": "approved by team per requester confirmation",
+    "review_date": "2026-10-24",
+    "reviewer": null,
+    "source": "requester confirmation in chat",
+    "case_level_review_details_provided": false,
+    "notes": "Aggregate score and approval are requester-reported. Reviewer identity and per-case notes were not supplied; individual manual_review fields remain pending rather than inferred."
+  },
+  "team_walkthrough_status": "complete (requester-reported)",
+  "cases": [
+    {
+      "case_id": "M1-01",
+      "company_name": "Beacon Ledger",
+      "expected_facts": [
+        "Fictional bookkeeping software for small businesses",
+        "bank reconciliation is manual",
+        "reconciliation consumes about eight staff hours weekly"
+      ],
+      "expected_need": "Reduce manual reconciliation effort",
+      "opportunity_guidance": "Possible reconciliation workflow automation or reporting; present as a suggestion",
+      "lead_id": 1,
+      "analysis_id": 1,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 1,
+        "lead_id": 1,
+        "summary": "Limited information available, but Beacon Ledger appears to be a fictional software company in the software industry, with unknown features and benefits.",
+        "potential_needs": [
+          "Bank reconciliation management"
+        ],
+        "opportunities": [],
+        "qualification": {
+          "score": 70,
+          "rationale": "Estimated qualification score 70/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 0
+          }
+        },
+        "created_at": "2026-10-24T07:04:49Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-02",
+      "company_name": "Juniper Water Analytics",
+      "expected_facts": [
+        "Fictional water-quality testing laboratory",
+        "client results reports take about five business days after testing"
+      ],
+      "expected_need": "Shorten client report preparation time",
+      "opportunity_guidance": "Possible report-generation workflow improvements; do not claim regulatory compliance",
+      "lead_id": 2,
+      "analysis_id": 2,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 2,
+        "lead_id": 2,
+        "summary": "Limited information available, but potential needs and opportunities may be inferred from the context.",
+        "potential_needs": [
+          "Streamlining reporting process to reduce turnaround time"
+        ],
+        "opportunities": [
+          "Exploring technologies to enhance speed of result preparation"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:05:07Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-03",
+      "company_name": "Ember Trail Safety",
+      "expected_facts": [
+        "Fictional workwear distributor",
+        "two staff manually check about 100 labels weekly",
+        "three corrections last month"
+      ],
+      "expected_need": "Reduce manual label checking and corrections",
+      "opportunity_guidance": "Possible label-checking or quality-control process support; do not claim errors will be eliminated",
+      "lead_id": 3,
+      "analysis_id": 3,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 3,
+        "lead_id": 3,
+        "summary": "Uncertain B2B company insights for Ember Trail Safety due to limited information.",
+        "potential_needs": [
+          "Process automation or efficiency improvements for manual verification of product labels",
+          "Increased accuracy rate through internal processes or employee training"
+        ],
+        "opportunities": [
+          "Exploring external label verification solutions or services",
+          "Investigating the potential for reducing labor costs associated with manual corrections"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:05:32Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-04",
+      "company_name": "Pollen Street Learning",
+      "expected_facts": [
+        "Fictional tutoring service",
+        "120 active learners",
+        "schedules and an 18-person waitlist are in separate spreadsheets"
+      ],
+      "expected_need": "Coordinate tutor schedules and waitlist information",
+      "opportunity_guidance": "Possible scheduling or waitlist coordination; do not infer learner outcomes",
+      "lead_id": 4,
+      "analysis_id": 4,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 4,
+        "lead_id": 4,
+        "summary": "Limited information available on Pollen Street Learning, a new lead in the education industry.",
+        "potential_needs": [
+          "Established processes for managing tutor schedules and waitlists",
+          "Development of a centralized system to track learner progress and performance"
+        ],
+        "opportunities": [
+          "Exploring integration with existing tutoring platforms or systems",
+          "Identifying potential for expansion into new markets or services"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:05:55Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-05",
+      "company_name": "Copper Finch Meals",
+      "expected_facts": [
+        "Fictional meal-kit business",
+        "labels are manually compared with recipes",
+        "three corrections last month"
+      ],
+      "expected_need": "Improve consistency of label review",
+      "opportunity_guidance": "Possible checklist or label-review workflow; do not claim food-safety certification",
+      "lead_id": 5,
+      "analysis_id": 5,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 5,
+        "lead_id": 5,
+        "summary": "Limited information available on Copper Finch Meals. The company appears to operate in the food services industry, but specific details about their operations and products are unclear.",
+        "potential_needs": [
+          "More efficient package labeling process",
+          "Automated quality control for packaging corrections"
+        ],
+        "opportunities": [
+          "Potential partnership with a meal-kit delivery service",
+          "Implementation of AI-powered label verification technology"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:06:14Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-06",
+      "company_name": "Mossy Peak Courier",
+      "expected_facts": [
+        "Fictional regional delivery service",
+        "operates 14 vans",
+        "dispatchers manually update routes each morning"
+      ],
+      "expected_need": "Reduce manual route-planning work",
+      "opportunity_guidance": "Possible route-planning or dispatch visibility support; do not claim specific fuel savings",
+      "lead_id": 6,
+      "analysis_id": 6,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 6,
+        "lead_id": 6,
+        "summary": "Mossy Peak Courier appears to be a small regional delivery service with limited technology, as dispatchers manually update route plans daily. The company's industry and contact information are known, but no further details are available.",
+        "potential_needs": [
+          "Implementation of automated route planning system",
+          "Integration of technology for manual dispatcher updates"
+        ],
+        "opportunities": [
+          "Investment in digital transformation to improve efficiency",
+          "Potential partnership with tech companies specializing in logistics solutions"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:06:39Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-07",
+      "company_name": "Glasswing Solar",
+      "expected_facts": [
+        "Fictional solar installation firm",
+        "quotes take about three days",
+        "proposal details are assembled manually from documents"
+      ],
+      "expected_need": "Shorten proposal preparation time",
+      "opportunity_guidance": "Possible proposal-template or information-assembly support; do not promise conversion gains",
+      "lead_id": 7,
+      "analysis_id": 7,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 7,
+        "lead_id": 7,
+        "summary": "Limited information available, but based on the provided context, Glasswing Solar appears to be a new B2B company in the energy industry. The current lead status indicates that they are in the initial stages of qualification. It is unclear how their operations are structured or what specific pain points they may face with manual proposal assembly.",
+        "potential_needs": [
+          "Streamlining proposal assembly process",
+          "Automation for data collection and documentation",
+          "Improved project management and quote turnaround times"
+        ],
+        "opportunities": [
+          "Offering training or consulting services to help with proposal automation",
+          "Developing a custom solution for manual proposal assembly",
+          "Exploring partnerships with technology providers specializing in proposal management"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:07:17Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-08",
+      "company_name": "Redwood Desk Supply",
+      "expected_facts": [
+        "Fictional online office-supplies retailer",
+        "about 40 percent of monthly support inquiries concern shipment status"
+      ],
+      "expected_need": "Reduce repetitive shipment-status inquiries",
+      "opportunity_guidance": "Possible order-status self-service or notification options; do not assert a system already exists",
+      "lead_id": 8,
+      "analysis_id": 8,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 8,
+        "lead_id": 8,
+        "summary": "Insights are limited due to lack of external verification. Redwood Desk Supply appears to be an e-commerce company specializing in office supplies, with a significant portion of customer inquiries revolving around shipment status.",
+        "potential_needs": [
+          "Streamlined order tracking and shipping updates",
+          "Improved customer support for online retailers",
+          "Enhanced inventory management systems"
+        ],
+        "opportunities": [
+          "Developing a robust and user-friendly shipping tracking system",
+          "Providing additional support resources for small to medium-sized businesses",
+          "Exploring partnerships with logistics providers for optimized delivery processes"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:07:42Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-09",
+      "company_name": "Silver Current Bikes",
+      "expected_facts": [
+        "Fictional bicycle repair shop",
+        "about 30 repairs weekly",
+        "initial repair details are recorded on paper"
+      ],
+      "expected_need": "Organize repair intake and status information",
+      "opportunity_guidance": "Possible digital intake or repair-status tracking; do not claim improved repair outcomes",
+      "lead_id": 9,
+      "analysis_id": 9,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 9,
+        "lead_id": 9,
+        "summary": "Limited information available for Silver Current Bikes, a new lead in the Consumer Services industry. The company may require assistance with data management, organization, and possibly customer relationship management to efficiently handle its 30 repairs per week.",
+        "potential_needs": [
+          "Data Management",
+          "Organization",
+          "Customer Relationship Management"
+        ],
+        "opportunities": [
+          "Digitalization of repair forms",
+          "Automated appointment scheduling"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:07:57Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-10",
+      "company_name": "Paper Kite Events",
+      "expected_facts": [
+        "Fictional event-rental company",
+        "booking details are in two spreadsheets",
+        "staff reconcile them manually each Friday"
+      ],
+      "expected_need": "Keep booking information synchronized",
+      "opportunity_guidance": "Possible shared booking records or reconciliation workflow; do not state bookings are currently lost",
+      "lead_id": 10,
+      "analysis_id": 10,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 10,
+        "lead_id": 10,
+        "summary": "Limited information available on Paper Kite Events, a new lead in the events industry. Evidence of existing processes and pain points is scarce.",
+        "potential_needs": [
+          "Reconciliation process for booking details",
+          "Manual data entry/management"
+        ],
+        "opportunities": [
+          "Implementation of automated reconciliation system",
+          "Digitalization of booking management"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:08:11Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-11",
+      "company_name": "Blue Meadow Plants",
+      "expected_facts": [
+        "Fictional nursery",
+        "demand varies seasonally",
+        "unsold inventory tends to rise after summer"
+      ],
+      "expected_need": "Plan inventory around seasonal demand",
+      "opportunity_guidance": "Possible seasonal inventory tracking; do not claim a forecast model exists",
+      "lead_id": 11,
+      "analysis_id": 11,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 11,
+        "lead_id": 11,
+        "summary": "Insufficient information available about Blue Meadow Plants due to lack of external research. Limited context from user-supplied notes.",
+        "potential_needs": [
+          "Seasonal fluctuations in demand",
+          "Inventory management strategies"
+        ],
+        "opportunities": [],
+        "qualification": {
+          "score": 70,
+          "rationale": "Estimated qualification score 70/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 0
+          }
+        },
+        "created_at": "2026-10-24T07:08:24Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-12",
+      "company_name": "Lantern Hill Software",
+      "expected_facts": [
+        "Fictional business-software provider",
+        "onboarding checklists are in several documents",
+        "setup usually takes ten business days"
+      ],
+      "expected_need": "Make onboarding steps easier to coordinate",
+      "opportunity_guidance": "Possible centralized checklist or onboarding workflow; do not claim reduced setup time as a fact",
+      "lead_id": 12,
+      "analysis_id": 12,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 12,
+        "lead_id": 12,
+        "summary": "Limited information available about Lantern Hill Software, primarily from user-supplied context. The company appears to be a software business, but specific details such as product offerings or revenue models are unclear.",
+        "potential_needs": [
+          "Customer onboarding process optimization",
+          "Streamlining setup and documentation for new customers"
+        ],
+        "opportunities": [
+          "Identifying potential areas of friction in the current onboarding process",
+          "Developing a centralized repository for customer setup guides and documents"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:08:43Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-13",
+      "company_name": "Wild Harbor Roasters",
+      "expected_facts": [
+        "Fictional coffee wholesaler",
+        "serves 25 business accounts",
+        "email reorders are copied into a spreadsheet manually"
+      ],
+      "expected_need": "Reduce manual reorder entry",
+      "opportunity_guidance": "Possible order-intake or account reorder workflow; do not infer revenue",
+      "lead_id": 13,
+      "analysis_id": 13,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 13,
+        "lead_id": 13,
+        "summary": "Limited information available, but Wild Harbor Roasters appears to be a B2B company in the food services industry with a small number of business accounts.",
+        "potential_needs": [
+          "Streamlined reorder process",
+          "Implementation of automated order management system"
+        ],
+        "opportunities": [
+          "Investigation into automation tools for inventory management and logistics",
+          "Research into potential integration with point-of-sale systems"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:08:59Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-14",
+      "company_name": "Maple Ring Laundry",
+      "expected_facts": [
+        "Fictional commercial laundry service",
+        "pickup schedules can change after dispatch",
+        "four missed pickups last quarter"
+      ],
+      "expected_need": "Communicate pickup schedule changes",
+      "opportunity_guidance": "Possible dispatch-change notifications or schedule coordination; do not claim the cause of prior missed pickups",
+      "lead_id": 14,
+      "analysis_id": 14,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 14,
+        "lead_id": 14,
+        "summary": "Insufficient data to determine company needs and opportunities. Limited information available.",
+        "potential_needs": [
+          "Process improvement",
+          "Improved communication with customers"
+        ],
+        "opportunities": [
+          "Enhanced customer service",
+          "Strategic planning for growth"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:09:10Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-15",
+      "company_name": "Golden Hour Photo",
+      "expected_facts": [
+        "Fictional photography studio",
+        "edited galleries take about seven days",
+        "staff manually sort files before delivery"
+      ],
+      "expected_need": "Organize image delivery preparation",
+      "opportunity_guidance": "Possible file organization or delivery workflow support; do not promise editing-time savings",
+      "lead_id": 15,
+      "analysis_id": 15,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 15,
+        "lead_id": 15,
+        "summary": "Limited information available on Golden Hour Photo, a creative services company with a potential need for process optimization to improve time-to-delivery and manual file sorting efficiency.",
+        "potential_needs": [
+          "Process optimization",
+          "Automation of image gallery delivery"
+        ],
+        "opportunities": [
+          "Investigation into alternative image editing software",
+          "Exploration of automated file sorting solutions"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:09:26Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-16",
+      "company_name": "Harborlight Fitness",
+      "expected_facts": [
+        "Fictional fitness center",
+        "runs about 50 classes weekly",
+        "front-desk staff manually track waitlists"
+      ],
+      "expected_need": "Coordinate class waitlists",
+      "opportunity_guidance": "Possible waitlist tracking or member notifications; do not infer attendance or retention impact",
+      "lead_id": 16,
+      "analysis_id": 16,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 16,
+        "lead_id": 16,
+        "summary": "Limited insights available for Harborlight Fitness, a new lead in the Recreation industry with 50 classes per week. Manual class waitlist tracking suggests potential inefficiencies.",
+        "potential_needs": [
+          "Automated class management system",
+          "Waitlist tracking and management tools"
+        ],
+        "opportunities": [
+          "Exploring digital transformation for operational efficiency",
+          "Identifying opportunities to expand services or classes"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:09:42Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-17",
+      "company_name": "Stonebridge Repair",
+      "expected_facts": [
+        "Fictional equipment-repair provider",
+        "some repairs wait three days on average for parts",
+        "orders are tracked in email"
+      ],
+      "expected_need": "Improve visibility into parts-order status",
+      "opportunity_guidance": "Possible parts tracking or repair-status coordination; do not claim inventory availability",
+      "lead_id": 17,
+      "analysis_id": 17,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 17,
+        "lead_id": 17,
+        "summary": "Limited information available on Stonebridge Repair's operations and challenges.",
+        "potential_needs": [
+          "Improved inventory management to reduce wait times for replacement parts",
+          "Streamlined order tracking processes to increase efficiency"
+        ],
+        "opportunities": [
+          "Investigating alternative suppliers or negotiating with existing ones to expedite part delivery",
+          "Exploring technology solutions (e.g., automation, AI-powered parts ordering) to enhance repair process"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:10:03Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-18",
+      "company_name": "Fern Loop Packaging",
+      "expected_facts": [
+        "Fictional packaging supplier",
+        "quotes use pricing from multiple spreadsheets",
+        "responses usually take two days"
+      ],
+      "expected_need": "Make quote preparation more efficient",
+      "opportunity_guidance": "Possible pricing-reference or quote workflow support; do not claim pricing accuracy improvements",
+      "lead_id": 18,
+      "analysis_id": 18,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 18,
+        "lead_id": 18,
+        "summary": "Fern Loop Packaging appears to be a B2B company in the manufacturing industry, with an unknown business model and process for providing customer quotes. The company response time is stated to be two days, which may indicate some level of manual processing or lack of automation. Limited information is available about the company's specific needs, opportunities, or challenges.",
+        "potential_needs": [
+          "Automation of quote processing",
+          "Streamlining of pricing details management",
+          "Improvement of response time"
+        ],
+        "opportunities": [
+          "Identifying cost-saving opportunities through data analysis",
+          "Enhancing customer experience through faster responses",
+          "Exploring new technologies to improve quote generation and management"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:10:33Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-19",
+      "company_name": "Meadowline Recycling",
+      "expected_facts": [
+        "Fictional recycling service",
+        "monthly invoices are assembled manually from three spreadsheets"
+      ],
+      "expected_need": "Reduce manual invoice assembly",
+      "opportunity_guidance": "Possible invoice-preparation or data-consolidation workflow; do not assert billing errors",
+      "lead_id": 19,
+      "analysis_id": 19,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 19,
+        "lead_id": 19,
+        "summary": "Limited information available on Meadowline Recycling, a new lead in the Environmental Services industry. The company appears to handle monthly customer invoices manually, potentially indicating manual data management processes.",
+        "potential_needs": [
+          "Automated invoice processing systems",
+          "Integration with external spreadsheets or accounting software",
+          "Data management and organization for recurring billing"
+        ],
+        "opportunities": [
+          "Exploring automation options to streamline operations",
+          "Researching potential partners for integrating with existing spreadsheets",
+          "Analyzing current data management processes for optimization opportunities"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:10:58Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    },
+    {
+      "case_id": "M1-20",
+      "company_name": "Alpine Arc Lighting",
+      "expected_facts": [
+        "Fictional lighting distributor",
+        "team estimates 15 percent of returns follow product-selection mismatch",
+        "comparisons use separate product documents"
+      ],
+      "expected_need": "Help customers compare products before selection",
+      "opportunity_guidance": "Possible product-comparison guide or support workflow; preserve that 15 percent is an estimate and do not claim causality is proven",
+      "lead_id": 20,
+      "analysis_id": 20,
+      "manageable_record_pass": true,
+      "analysis": {
+        "analysis_id": 20,
+        "lead_id": 20,
+        "summary": "Insights for Alpine Arc Lighting are limited, but key areas for improvement and potential needs can be identified based on the provided context.",
+        "potential_needs": [
+          "Product selection guidance",
+          "Comparison tools for customers"
+        ],
+        "opportunities": [
+          "Implementing product comparison features in the website or customer support platform",
+          "Offering training to staff on product knowledge and return policies"
+        ],
+        "qualification": {
+          "score": 90,
+          "rationale": "Estimated qualification score 90/100 based on available lead details and analysis signals: industry provided (+15), contact identified (+15), email available (+15), analysis summary available (+10), potential needs identified (+15), opportunities identified (+20). This transparent completeness/fit heuristic is not a predicted conversion probability or an accuracy claim.",
+          "factors": {
+            "industry_provided": 15,
+            "contact_identified": 15,
+            "email_available": 15,
+            "phone_available": 0,
+            "analysis_summary_available": 10,
+            "potential_needs_identified": 15,
+            "opportunities_identified": 20
+          }
+        },
+        "created_at": "2026-10-24T07:11:17Z"
+      },
+      "manual_review": {
+        "status": "pending",
+        "reviewer": null,
+        "review_date": null,
+        "accurate": null,
+        "failed_criteria": [],
+        "notes": null
+      }
+    }
+  ],
+  "completed_at": "2026-10-24T07:11:17.734478+00:00",
+  "evaluation_status": "completed"
+}

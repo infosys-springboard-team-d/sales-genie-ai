@@ -4,7 +4,7 @@ import json
 import os
 from typing import Protocol
 
-from openai import OpenAI
+import requests
 from pydantic import BaseModel, ConfigDict, Field
 
 from db.models import Lead
@@ -26,28 +26,35 @@ class ProviderConfigurationError(Exception):
     pass
 
 
-class OpenAIAnalysisProvider:
-    def __init__(self, api_key: str | None, model: str, timeout_seconds: float = 45) -> None:
-        self.api_key = api_key
+class AnalysisProviderError(Exception):
+    pass
+
+
+class OllamaAnalysisProvider:
+    def __init__(
+        self,
+        base_url: str,
+        model: str,
+        timeout_seconds: float = 180,
+    ) -> None:
+        self.base_url = base_url.rstrip("/")
         self.model = model
         self.timeout_seconds = timeout_seconds
 
     @classmethod
-    def from_environment(cls) -> OpenAIAnalysisProvider:
+    def from_environment(cls) -> OllamaAnalysisProvider:
+        base_url = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").strip()
+        model = os.getenv("OLLAMA_MODEL", "llama3.2:latest").strip()
+        if not base_url or not model:
+            raise ProviderConfigurationError(
+                "OLLAMA_BASE_URL and OLLAMA_MODEL must be configured."
+            )
         return cls(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
+            base_url=base_url,
+            model=model,
         )
 
     def analyze(self, lead: Lead, context: str | None) -> AnalysisContent:
-        if not self.api_key:
-            raise ProviderConfigurationError("OPENAI_API_KEY is not configured.")
-
-        client = OpenAI(
-            api_key=self.api_key,
-            timeout=self.timeout_seconds,
-            max_retries=1,
-        )
         lead_context = {
             "company_name": lead.company_name,
             "industry": lead.industry,
@@ -55,26 +62,53 @@ class OpenAIAnalysisProvider:
             "lead_status": lead.lead_status,
             "user_supplied_context": context,
         }
-        response = client.chat.completions.create(
-            model=self.model,
-            response_format={"type": "json_object"},
-            max_completion_tokens=900,
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "Create cautious B2B company insights using only the supplied "
-                        "lead fields and user notes. Do not invent or present external "
-                        "company facts as verified. State uncertainty in the summary "
-                        "when evidence is limited. Return JSON with exactly: summary "
-                        "(string), potential_needs (array of strings), opportunities "
-                        "(array of strings)."
-                    ),
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/chat",
+                json={
+                    "model": self.model,
+                    "stream": False,
+                    "format": "json",
+                    "options": {"num_predict": 900},
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": (
+                                "Create cautious B2B company insights using only the "
+                                "supplied lead fields and user notes. Do not invent or "
+                                "present external company facts as verified. State "
+                                "uncertainty in the summary when evidence is limited. "
+                                "Return JSON with exactly: summary (string), "
+                                "potential_needs (array of strings), opportunities "
+                                "(array of strings)."
+                            ),
+                        },
+                        {"role": "user", "content": json.dumps(lead_context)},
+                    ],
                 },
-                {"role": "user", "content": json.dumps(lead_context)},
-            ],
-        )
-        content = response.choices[0].message.content
-        if not content:
-            raise ValueError("The AI provider returned an empty analysis.")
-        return AnalysisContent.model_validate_json(content)
+                timeout=self.timeout_seconds,
+            )
+            response.raise_for_status()
+            body = response.json()
+        except requests.RequestException as error:
+            raise AnalysisProviderError(
+                "Could not reach Ollama. Start Ollama and confirm the configured "
+                "model is installed."
+            ) from error
+        except ValueError as error:
+            raise AnalysisProviderError(
+                "Ollama returned an invalid response."
+            ) from error
+
+        message = body.get("message") if isinstance(body, dict) else None
+        content = message.get("content") if isinstance(message, dict) else None
+        if not isinstance(content, str) or not content.strip():
+            raise AnalysisProviderError(
+                "Ollama returned an empty analysis. Check that the model is available."
+            )
+        try:
+            return AnalysisContent.model_validate_json(content)
+        except ValueError as error:
+            raise AnalysisProviderError(
+                "Ollama returned analysis in an unexpected format."
+            ) from error
