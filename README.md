@@ -23,7 +23,7 @@ do not expose it publicly or use real prospect data.
 
 - Python 3.10 or newer
 - Git
-- Ollama for local company analysis (no hosted AI API key required)
+- An OpenAI API key with API usage available for live company analysis
 - Docker Desktop only if you want to run the optional PostgreSQL service
 
 ## Run locally on Windows
@@ -42,19 +42,13 @@ Edit the ignored local `.env` file and set:
 
 ```dotenv
 DATABASE_URL=sqlite:///./salesgenie.db
-OLLAMA_BASE_URL=http://127.0.0.1:11434
-OLLAMA_MODEL=llama3.2:latest
+OPENAI_API_KEY=your_key_here
+OPENAI_MODEL=gpt-4o-mini
 API_BASE_URL=http://127.0.0.1:8000
 ```
 
-Install and start Ollama for Windows, then download the configured local model:
-
-```powershell
-ollama pull llama3.2:latest
-```
-
-Ollama serves its local API on `http://127.0.0.1:11434` by default. No AI API key
-is needed. Apply the migration and load synthetic sample leads:
+Never commit or share `.env` or its key. Apply the migration and load synthetic
+sample leads:
 
 ```powershell
 python -m alembic upgrade head
@@ -79,23 +73,14 @@ see the project setup and API contract documents in the team's source materials.
 
 ## Verification status
 
-The implementation's SQLite tests passed on 24 October 2026, both in the
-configured and fresh Python 3.13 environments, with **17 passed, 1
-PostgreSQL-only test skipped**. A separate earlier PostgreSQL 16 run passed
-all 14 database/API tests and migration checks. A synthetic 20-record automated flow
+The implementation's SQLite tests last passed with **13 passed, 1
+PostgreSQL-only test skipped**. A separate PostgreSQL 16 run passed all 14
+database/API tests and migration checks. A synthetic 20-record automated flow
 passed using a deterministic test provider; this does not measure real AI
 accuracy.
 
-The local Ollama `llama3.2:latest` model was exercised with synthetic input. A
-temporary-database API/UI end-to-end check generated, displayed, and retrieved
-the saved analysis after a page reload without a hosted API key. The requester
-confirmed that all team members signed and approved the SRS/API contract; the
-individual signature references were not supplied in this workspace. The
-requester reports that the team approved the 20-case synthetic dataset and
-rubric, that Ollama completed 20/20 operational flows, and that human review
-scored 20/20 insights accurate (100%, meeting the >=95% target). The reviewer
-worksheet and reviewer identity were not supplied, so this evaluation is
-recorded as requester-reported. See
-[MILESTONE_1_TEST_REPORT.md](./MILESTONE_1_TEST_REPORT.md)
-and [runtime-validation-report.md](./runtime-validation-report.md) for evidence
-and remaining limits.
+A live OpenAI analysis attempt returned HTTP 429, so successful real-provider
+analysis and saved-result retrieval have not yet been verified. The milestone
+sheet's >=95% manageable-record and accurate-insight target also remains open
+until the team agrees on a test set and review rubric, evaluates the results,
+and completes its demo and sign-off.
