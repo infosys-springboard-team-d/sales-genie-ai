@@ -5,7 +5,7 @@ import io
 import logging
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Annotated, Any
 
 from dotenv import load_dotenv
@@ -25,7 +25,16 @@ from api.analysis import (
     OllamaAnalysisProvider,
     ProviderConfigurationError,
 )
+from api.outreach import (
+    OllamaOutreachProvider,
+    OutreachContent,
+    OutreachProvider,
+    OutreachProviderConfigurationError,
+    OutreachProviderError,
+)
 from api.schemas import (
+    ActivityCreate,
+    ActivityOut,
     AnalysisOut,
     AnalysisRequest,
     CsvLeadInput,
@@ -34,12 +43,24 @@ from api.schemas import (
     LeadOut,
     LeadPage,
     LeadPatch,
+    LeadScoreOut,
     LeadStatus,
     LeadStatusUpdate,
+    OutreachDraftOut,
+    OutreachDraftUpdate,
+    OutreachGenerationRequest,
 )
-from api.scoring import score_lead
+from api.scoring import score_lead, score_sales_readiness
 from db.database import create_database_engine
-from db.models import CompanyInsight, ImportBatch, Lead, LeadScore
+from db.models import (
+    Activity,
+    CompanyInsight,
+    ConversationSummary,
+    ImportBatch,
+    Lead,
+    LeadScore,
+    OutreachDraft,
+)
 
 
 load_dotenv()
@@ -122,6 +143,29 @@ def _analysis_output(analysis: CompanyInsight, score: LeadScore) -> AnalysisOut:
     )
 
 
+def _lead_score_output(score: LeadScore) -> LeadScoreOut:
+    if score.recommendation is None:
+        raise ApiError(
+            500,
+            "SCORE_INCONSISTENT",
+            "The saved Milestone 2 score is missing its recommendation.",
+        )
+    return LeadScoreOut(
+        score_id=score.score_id,
+        lead_id=score.lead_id,
+        score=score.score,
+        score_label="high" if score.score >= 70 else "moderate" if score.score >= 40 else "low",
+        rationale=score.rationale,
+        factors=score.factors,
+        recommendation=score.recommendation,
+        created_at=score.created_at,
+    )
+
+
+def _outreach_output(draft: OutreachDraft) -> OutreachDraftOut:
+    return OutreachDraftOut.model_validate(draft)
+
+
 def _database_failure(session: Session, error: SQLAlchemyError) -> ApiError:
     session.rollback()
     logger.error("Database operation failed (%s)", type(error).__name__)
@@ -131,6 +175,7 @@ def _database_failure(session: Session, error: SQLAlchemyError) -> ApiError:
 def create_app(
     database_url: str | None = None,
     analysis_provider: AnalysisProvider | None = None,
+    outreach_provider: OutreachProvider | None = None,
     engine: Engine | None = None,
 ) -> FastAPI:
     owns_engine = engine is None
@@ -147,13 +192,17 @@ def create_app(
 
     app = FastAPI(
         title="SalesGenie API",
-        description="Milestone 1 lead management and saved company intelligence.",
+        description=(
+            "SalesGenie lead management, saved company intelligence, "
+            "outreach drafts, and explainable lead scoring."
+        ),
         version="1.0.0",
         lifespan=lifespan,
     )
     app.state.session_factory = session_factory
     app.state.engine = database_engine
     app.state.analysis_provider = analysis_provider or OllamaAnalysisProvider.from_environment()
+    app.state.outreach_provider = outreach_provider or OllamaOutreachProvider.from_environment()
 
     @app.exception_handler(ApiError)
     async def handle_api_error(_request: Request, error: ApiError) -> JSONResponse:
@@ -514,13 +563,205 @@ def create_app(
             raise ApiError(404, "ANALYSIS_NOT_FOUND", "No saved analysis exists for this lead.")
         score = session.scalar(
             select(LeadScore)
-            .where(LeadScore.lead_id == lead_id)
+            .where(
+                LeadScore.lead_id == lead_id,
+                LeadScore.score == analysis.qualification_score,
+                LeadScore.rationale == analysis.qualification_rationale,
+            )
             .order_by(LeadScore.created_at.desc(), LeadScore.score_id.desc())
             .limit(1)
         )
         if score is None:
             raise ApiError(500, "ANALYSIS_INCONSISTENT", "Saved analysis is missing its qualification record.")
         return _analysis_output(analysis, score)
+
+    @app.post(
+        "/api/v1/leads/{lead_id}/scores",
+        response_model=LeadScoreOut,
+        status_code=201,
+    )
+    def create_lead_score(lead_id: int, session: SessionDependency) -> LeadScoreOut:
+        lead = session.get(Lead, lead_id)
+        if lead is None:
+            raise ApiError(404, "LEAD_NOT_FOUND", "The requested lead does not exist.")
+        cutoff = datetime.now(timezone.utc) - timedelta(days=30)
+        recent_activity_count = session.scalar(
+            select(func.count())
+            .select_from(Activity)
+            .where(Activity.lead_id == lead_id, Activity.occurred_at >= cutoff)
+        ) or 0
+        conversation_count = session.scalar(
+            select(func.count())
+            .select_from(ConversationSummary)
+            .where(ConversationSummary.lead_id == lead_id)
+        ) or 0
+        insight = session.scalar(
+            select(CompanyInsight)
+            .where(CompanyInsight.lead_id == lead_id)
+            .order_by(CompanyInsight.created_at.desc(), CompanyInsight.analysis_id.desc())
+            .limit(1)
+        )
+        score_value, rationale, factors, recommendation = score_sales_readiness(
+            lead,
+            insight,
+            recent_activity_count=recent_activity_count,
+            conversation_count=conversation_count,
+        )
+        score = LeadScore(
+            lead_id=lead_id,
+            score=score_value,
+            rationale=rationale,
+            factors=factors,
+            recommendation=recommendation,
+        )
+        session.add(score)
+        try:
+            session.commit()
+        except SQLAlchemyError as error:
+            raise _database_failure(session, error) from error
+        session.refresh(score)
+        return _lead_score_output(score)
+
+    @app.get(
+        "/api/v1/leads/{lead_id}/scores/latest",
+        response_model=LeadScoreOut,
+    )
+    def get_latest_lead_score(lead_id: int, session: SessionDependency) -> LeadScoreOut:
+        if session.get(Lead, lead_id) is None:
+            raise ApiError(404, "LEAD_NOT_FOUND", "The requested lead does not exist.")
+        score = session.scalar(
+            select(LeadScore)
+            .where(
+                LeadScore.lead_id == lead_id,
+                LeadScore.recommendation.is_not(None),
+            )
+            .order_by(LeadScore.created_at.desc(), LeadScore.score_id.desc())
+            .limit(1)
+        )
+        if score is None:
+            raise ApiError(404, "SCORE_NOT_FOUND", "No Milestone 2 score exists for this lead.")
+        return _lead_score_output(score)
+
+    @app.post(
+        "/api/v1/leads/{lead_id}/activities",
+        response_model=ActivityOut,
+        status_code=201,
+    )
+    def create_activity(
+        lead_id: int, payload: ActivityCreate, session: SessionDependency
+    ) -> ActivityOut:
+        if session.get(Lead, lead_id) is None:
+            raise ApiError(404, "LEAD_NOT_FOUND", "The requested lead does not exist.")
+        activity = Activity(
+            lead_id=lead_id,
+            activity_type=payload.activity_type,
+            details={"note": payload.details} if payload.details else {},
+        )
+        session.add(activity)
+        try:
+            session.commit()
+        except SQLAlchemyError as error:
+            raise _database_failure(session, error) from error
+        session.refresh(activity)
+        return ActivityOut.model_validate(activity)
+
+    @app.get(
+        "/api/v1/leads/{lead_id}/activities",
+        response_model=list[ActivityOut],
+    )
+    def list_activities(lead_id: int, session: SessionDependency) -> list[ActivityOut]:
+        if session.get(Lead, lead_id) is None:
+            raise ApiError(404, "LEAD_NOT_FOUND", "The requested lead does not exist.")
+        activities = session.scalars(
+            select(Activity)
+            .where(Activity.lead_id == lead_id)
+            .order_by(Activity.occurred_at.desc(), Activity.activity_id.desc())
+            .limit(100)
+        ).all()
+        return [ActivityOut.model_validate(activity) for activity in activities]
+
+    @app.post(
+        "/api/v1/leads/{lead_id}/outreach-drafts",
+        response_model=OutreachDraftOut,
+        status_code=201,
+    )
+    def generate_outreach_draft(
+        lead_id: int,
+        payload: OutreachGenerationRequest,
+        session: SessionDependency,
+    ) -> OutreachDraftOut:
+        lead = session.get(Lead, lead_id)
+        if lead is None:
+            raise ApiError(404, "LEAD_NOT_FOUND", "The requested lead does not exist.")
+        try:
+            generated: OutreachContent = app.state.outreach_provider.generate(lead, payload)
+        except OutreachProviderConfigurationError as error:
+            raise ApiError(503, "AI_PROVIDER_NOT_CONFIGURED", str(error)) from error
+        except OutreachProviderError as error:
+            logger.warning("Outreach provider request failed (%s)", type(error).__name__)
+            raise ApiError(502, "AI_PROVIDER_ERROR", str(error)) from error
+        except (ValueError, UnicodeDecodeError) as error:
+            logger.warning("Outreach provider response was invalid (%s)", type(error).__name__)
+            raise ApiError(
+                502, "AI_PROVIDER_ERROR", "Outreach content could not be generated."
+            ) from error
+
+        content = generated.body.strip()
+        if payload.draft_type == "email":
+            if not generated.subject:
+                raise ApiError(
+                    502, "AI_PROVIDER_ERROR", "Outreach email is missing a subject."
+                )
+            content = f"Subject: {generated.subject.strip()}\n\n{content}"
+        draft = OutreachDraft(
+            lead_id=lead_id,
+            draft_type=payload.draft_type,
+            content=content,
+        )
+        session.add(draft)
+        try:
+            session.commit()
+        except SQLAlchemyError as error:
+            raise _database_failure(session, error) from error
+        session.refresh(draft)
+        return _outreach_output(draft)
+
+    @app.get(
+        "/api/v1/leads/{lead_id}/outreach-drafts",
+        response_model=list[OutreachDraftOut],
+    )
+    def list_outreach_drafts(
+        lead_id: int, session: SessionDependency
+    ) -> list[OutreachDraftOut]:
+        if session.get(Lead, lead_id) is None:
+            raise ApiError(404, "LEAD_NOT_FOUND", "The requested lead does not exist.")
+        drafts = session.scalars(
+            select(OutreachDraft)
+            .where(OutreachDraft.lead_id == lead_id)
+            .order_by(OutreachDraft.created_at.desc(), OutreachDraft.draft_id.desc())
+            .limit(100)
+        ).all()
+        return [_outreach_output(draft) for draft in drafts]
+
+    @app.patch(
+        "/api/v1/outreach-drafts/{draft_id}",
+        response_model=OutreachDraftOut,
+    )
+    def update_outreach_draft(
+        draft_id: int,
+        payload: OutreachDraftUpdate,
+        session: SessionDependency,
+    ) -> OutreachDraftOut:
+        draft = session.get(OutreachDraft, draft_id)
+        if draft is None:
+            raise ApiError(404, "OUTREACH_DRAFT_NOT_FOUND", "The outreach draft does not exist.")
+        draft.content = payload.content
+        try:
+            session.commit()
+        except SQLAlchemyError as error:
+            raise _database_failure(session, error) from error
+        session.refresh(draft)
+        return _outreach_output(draft)
 
     return app
 

@@ -31,6 +31,7 @@ erDiagram
         int score "0 to 100"
         text rationale
         json factors "default empty object"
+        json recommendation "nullable for Milestone 1 scores; Alembic revision 0002"
         timestamptz created_at
     }
     OUTREACH_DRAFTS {
