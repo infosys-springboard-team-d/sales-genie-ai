@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from collections import Counter
 from math import ceil
+from urllib.parse import quote
 
 import requests
 import streamlit as st
@@ -17,7 +18,9 @@ STATUSES = ["New", "Contacted", "Qualified", "Proposal", "Won", "Lost"]
 
 
 class ApiRequestError(Exception):
-    pass
+    def __init__(self, message: str, *, code: str | None = None) -> None:
+        super().__init__(message)
+        self.code = code
 
 
 def api_request(
@@ -26,7 +29,7 @@ def api_request(
     *,
     timeout: int = REQUEST_TIMEOUT,
     **kwargs: object,
-) -> dict:
+) -> dict | list:
     try:
         response = requests.request(
             method,
@@ -49,14 +52,30 @@ def api_request(
         if not isinstance(error_body, dict):
             error_body = {}
         message = error_body.get("message", f"API request failed ({response.status_code}).")
-        raise ApiRequestError(message)
-    if not isinstance(body, dict):
+        raise ApiRequestError(message, code=error_body.get("code"))
+    if not isinstance(body, (dict, list)):
         raise ApiRequestError("The API returned an unexpected response.")
     return body
 
 
 def show_api_error(error: ApiRequestError) -> None:
     st.error(str(error))
+
+
+def fetch_all_leads() -> list[dict]:
+    first_page = api_request(
+        "GET", "/api/v1/leads", params={"page": 1, "page_size": 100}
+    )
+    leads = first_page["items"]
+    page_count = ceil(first_page["total"] / 100)
+    for page_number in range(2, page_count + 1):
+        page_result = api_request(
+            "GET",
+            "/api/v1/leads",
+            params={"page": page_number, "page_size": 100},
+        )
+        leads.extend(page_result["items"])
+    return leads
 
 
 def render_add_lead() -> None:
@@ -129,33 +148,47 @@ def select_dashboard_lead(lead_id: int) -> None:
 def render_leads() -> None:
     try:
         api_request("GET", "/health")
-        first_page = api_request(
-            "GET", "/api/v1/leads", params={"page": 1, "page_size": 100}
-        )
-        leads = first_page["items"]
-        api_page_count = ceil(first_page["total"] / 100)
-        for page_number in range(2, api_page_count + 1):
-            page_result = api_request(
-                "GET",
-                "/api/v1/leads",
-                params={"page": page_number, "page_size": 100},
-            )
-            leads.extend(page_result["items"])
+        leads = fetch_all_leads()
     except ApiRequestError as error:
         show_api_error(error)
         return
 
-    st.caption(f"API connected · {API_BASE_URL}")
-    st.markdown("### Lead overview")
-    st.caption("Search, manage, and review your sales prospects.")
-
     counts = Counter(lead["lead_status"] for lead in leads)
-    metrics = [("Total leads", len(leads))] + [
-        (status, counts[status]) for status in STATUSES
+    active_count = sum(
+        counts[status] for status in ("New", "Contacted", "Qualified", "Proposal")
+    )
+    st.markdown(
+        f"""
+        <section class="sg-pipeline-hero">
+            <div class="sg-hero-copy">
+                <div class="sg-hero-eyebrow">SALES PIPELINE · LIVE WORKSPACE</div>
+                <h1>Keep every opportunity moving.</h1>
+                <p>Review your prospects, spot follow-ups, and turn company insights into your next action.</p>
+                <div class="sg-hero-api">API connected · <a href="{API_BASE_URL}/docs" target="_blank">View API docs</a></div>
+            </div>
+            <div class="sg-hero-stats">
+                <div><span>Active pipeline</span><strong>{active_count}</strong><small>leads to follow up</small></div>
+                <div><span>Total prospects</span><strong>{len(leads)}</strong><small>in your workspace</small></div>
+            </div>
+        </section>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    metrics = [("Total leads", len(leads), "total")] + [
+        (status, counts[status], status.lower()) for status in STATUSES
     ]
-    for column, (label, value) in zip(st.columns(7), metrics):
-        with column:
-            st.metric(label, value)
+    metric_cards = "".join(
+        f'<div class="sg-metric-card sg-metric-{tone}">'
+        f'<span class="sg-metric-label">{label}</span>'
+        f'<span class="sg-metric-value">{value}</span>'
+        "</div>"
+        for label, value, tone in metrics
+    )
+    st.markdown(
+        f'<div class="sg-metrics-grid">{metric_cards}</div>',
+        unsafe_allow_html=True,
+    )
 
     filters = st.columns([2.5, 1.15, 1.35, 0.75])
     query = filters[0].text_input(
@@ -176,14 +209,6 @@ def render_leads() -> None:
         use_container_width=True,
         on_click=clear_lead_filters,
     )
-
-    add_action, import_action = st.columns(2)
-    with add_action:
-        with st.expander("＋ Add lead", expanded=False):
-            render_add_lead()
-    with import_action:
-        with st.expander("⇧ Import CSV", expanded=False):
-            render_import()
 
     normalized_query = query.strip().casefold()
     filtered_leads = [
@@ -221,6 +246,7 @@ def render_leads() -> None:
         with st.container(border=True):
             st.markdown("#### All leads")
             st.caption("Select a company to inspect its details and insights.")
+            st.markdown("<div class='sg-directory-spacer'></div>", unsafe_allow_html=True)
             header = st.columns([0.45, 2.1, 1.15, 1.05, 0.9, 0.85])
             for column, label in zip(
                 header, ("ID", "Company", "Contact", "Industry", "Status", "Updated")
@@ -393,32 +419,402 @@ def set_navigation(page: str) -> None:
     st.session_state["navigation"] = page
 
 
+def render_outreach() -> None:
+    st.title("Outreach strategy")
+    st.caption(
+        "Review an explainable readiness estimate and create personalized drafts. "
+        "Drafts are saved for human review; SalesGenie does not send email."
+    )
+    try:
+        leads = fetch_all_leads()
+    except ApiRequestError as error:
+        show_api_error(error)
+        return
+    if not leads:
+        st.info("Add a lead before preparing outreach.")
+        return
+
+    lead_by_label = {
+        f"{lead['company_name']} (#{lead['lead_id']})": lead for lead in leads
+    }
+    labels = list(lead_by_label)
+    selected_label = st.selectbox("Select a lead", labels, key="outreach-lead")
+    lead = lead_by_label[selected_label]
+    lead_id = lead["lead_id"]
+    st.markdown(
+        f"**{lead['company_name']}** · {lead['contact_name'] or 'Contact not set'} · "
+        f"{lead['industry'] or 'Industry not set'} · {lead['lead_status']}"
+    )
+
+    st.markdown("### Lead score and next-best action")
+    if st.button("Calculate / refresh score", type="primary", key=f"score-{lead_id}"):
+        try:
+            api_request("POST", f"/api/v1/leads/{lead_id}/scores")
+            st.success("Score and recommendation saved.")
+        except ApiRequestError as error:
+            show_api_error(error)
+
+    try:
+        score = api_request("GET", f"/api/v1/leads/{lead_id}/scores/latest")
+    except ApiRequestError as error:
+        score = None
+        if error.code == "SCORE_NOT_FOUND":
+            st.info("No Milestone 2 score yet. Calculate a score to see the recommendation.")
+        else:
+            show_api_error(error)
+    if score:
+        score_column, label_column = st.columns([1, 3])
+        score_column.metric(
+            "Estimated sales readiness",
+            f"{score['score']}/100",
+            score["score_label"].title(),
+        )
+        label_column.caption(score["rationale"])
+        st.caption("Rule-based estimate, not a calibrated conversion probability.")
+        factor_columns = st.columns(4)
+        for column, factor in zip(
+            factor_columns,
+            ("fit", "engagement", "intent", "decision_readiness"),
+        ):
+            column.metric(factor.replace("_", " ").title(), f"{score['factors'][factor]}/25")
+        recommendation = score["recommendation"]
+        with st.container(border=True):
+            st.markdown("**Recommended next action**")
+            st.write(recommendation["action"])
+            st.caption(
+                f"{recommendation['timing']} · {recommendation['channel']} · "
+                f"{recommendation['rationale']}"
+            )
+
+    with st.expander("Log a sales activity", expanded=False):
+        with st.form(f"activity-form-{lead_id}"):
+            activity_type = st.selectbox(
+                "Activity", ["call", "email", "meeting", "reply", "note"]
+            )
+            activity_note = st.text_area("Outcome or notes", max_chars=2000)
+            activity_submitted = st.form_submit_button("Save activity")
+        if activity_submitted:
+            try:
+                api_request(
+                    "POST",
+                    f"/api/v1/leads/{lead_id}/activities",
+                    json={
+                        "activity_type": activity_type,
+                        "details": activity_note or None,
+                    },
+                )
+                st.success("Activity recorded.")
+                st.rerun()
+            except ApiRequestError as error:
+                show_api_error(error)
+    try:
+        activities = api_request("GET", f"/api/v1/leads/{lead_id}/activities")
+    except ApiRequestError as error:
+        show_api_error(error)
+        activities = []
+    if activities:
+        st.caption("Recent activity")
+        for activity in activities[:5]:
+            note = activity["details"].get("note")
+            st.write(
+                f"**{activity['activity_type'].title()}** · "
+                f"{activity['occurred_at'][:10]}"
+                + (f" — {note}" if note else "")
+            )
+
+    st.markdown("### Generate personalized outreach")
+    with st.form(f"outreach-form-{lead_id}"):
+        draft_type = st.selectbox("Draft type", ["email", "message"])
+        tone = st.selectbox(
+            "Tone", ["professional", "friendly", "concise", "persuasive"]
+        )
+        length = st.selectbox("Length", ["short", "medium", "long"])
+        goal = st.text_input("Goal", value="Start a relevant sales conversation")
+        pain_point_text = st.text_area(
+            "Known prospect needs or pain points",
+            help="Use verified notes only. Enter one item per line.",
+        )
+        generate = st.form_submit_button("Generate / regenerate draft", type="primary")
+    if generate:
+        pain_points = [
+            item.strip() for item in pain_point_text.splitlines() if item.strip()
+        ]
+        with st.spinner("Generating a draft for review..."):
+            try:
+                api_request(
+                    "POST",
+                    f"/api/v1/leads/{lead_id}/outreach-drafts",
+                    json={
+                        "draft_type": draft_type,
+                        "tone": tone,
+                        "length": length,
+                        "goal": goal,
+                        "pain_points": pain_points,
+                    },
+                    timeout=ANALYSIS_TIMEOUT,
+                )
+                st.success("Draft generated and saved.")
+                st.rerun()
+            except ApiRequestError as error:
+                show_api_error(error)
+
+    try:
+        drafts = api_request("GET", f"/api/v1/leads/{lead_id}/outreach-drafts")
+    except ApiRequestError as error:
+        show_api_error(error)
+        return
+    if not drafts:
+        st.info("No outreach drafts saved for this lead yet.")
+        return
+    draft = drafts[0]
+    st.markdown("#### Latest saved draft")
+    st.caption("Use the copy control on the draft below, or download it for review.")
+    st.code(draft["content"])
+    st.download_button(
+        "Download draft",
+        data=draft["content"],
+        file_name=f"salesgenie-{draft['draft_type']}-draft-{draft['draft_id']}.txt",
+        mime="text/plain",
+        key=f"download-draft-{draft['draft_id']}",
+    )
+    with st.form(f"edit-draft-{draft['draft_id']}"):
+        edited_content = st.text_area(
+            "Edit draft",
+            value=draft["content"],
+            height=240,
+            key=f"draft-content-{draft['draft_id']}",
+        )
+        save_draft = st.form_submit_button("Save edits")
+    if save_draft:
+        try:
+            api_request(
+                "PATCH",
+                f"/api/v1/outreach-drafts/{draft['draft_id']}",
+                json={"content": edited_content},
+            )
+            st.success("Draft edits saved.")
+            st.rerun()
+        except ApiRequestError as error:
+            show_api_error(error)
+
+    if draft["draft_type"] == "email":
+        if lead["email"]:
+            subject, separator, body = draft["content"].partition("\n\n")
+            if subject.startswith("Subject: "):
+                subject = subject.removeprefix("Subject: ")
+            else:
+                body = draft["content"]
+                subject = ""
+            mailto_url = (
+                f"mailto:{quote(lead['email'], safe='@')}"
+                f"?subject={quote(subject)}&body={quote(body if separator else draft['content'])}"
+            )
+            st.link_button("Open in email client", mailto_url)
+            st.caption("Review the recipient and content in your email client before sending.")
+        else:
+            st.info("Add an email address to open this draft in your email client.")
+
+
 def main() -> None:
     st.set_page_config(
         page_title="SalesGenie AI",
         page_icon="📈",
         layout="wide",
-        initial_sidebar_state="expanded",
+        initial_sidebar_state="collapsed",
     )
     st.markdown(
         """
         <style>
-        .stApp { background: #f7f8fc; color: #1f2937; }
-        .block-container { max-width: 1680px; padding-top: 1.4rem; }
-        div[data-testid="stMetric"] {
-            background: #ffffff;
-            border: 1px solid #e6e9f0;
-            border-radius: 10px;
-            padding: 0.7rem 0.85rem;
+        .stApp { background: #edf1f6; color: #1e293b; }
+        .block-container { max-width: 1540px; padding-top: 2rem; padding-bottom: 3rem; }
+        .sg-brandbar {
+            position: sticky;
+            top: 4.5rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 1.1rem;
+            min-height: 5.6rem;
+            padding: 1.4rem 1.65rem;
+            margin-bottom: 1rem;
+            color: #f8fafc;
+            background: linear-gradient(115deg, #14243a, #243e5c);
+            border: 1px solid #314b68;
+            border-radius: 14px;
+            box-shadow: 0 5px 16px rgba(15, 23, 42, 0.12);
         }
-        div[data-testid="stMetricLabel"] { color: #667085; }
-        div[data-testid="stMetricValue"] { color: #1f2937; }
+        .sg-brand-mark {
+            display: grid;
+            place-items: center;
+            width: 2.65rem;
+            height: 2.65rem;
+            flex: 0 0 2.65rem;
+            color: #14243a;
+            background: #8ed8c3;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+        .sg-brand-name { font-size: 1.25rem; font-weight: 700; line-height: 1.3; }
+        .sg-brand-subtitle {
+            margin-top: 0.15rem;
+            color: #c1cfde;
+            font-size: 0.72rem;
+            letter-spacing: 0.09em;
+        }
+        .sg-pipeline-hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            margin: 1.4rem 0 1.35rem;
+            padding: 1.8rem 2rem;
+            color: #f8fafc;
+            background:
+                radial-gradient(ellipse at 92% 0%, rgba(142, 216, 195, 0.19), transparent 34%),
+                linear-gradient(115deg, #172b43, #294967);
+            border: 1px solid #38536f;
+            border-radius: 16px;
+            box-shadow: 0 10px 24px rgba(23, 43, 67, 0.14);
+        }
+        .sg-hero-copy { min-width: 0; }
+        .sg-hero-eyebrow {
+            margin-bottom: 0.6rem;
+            color: #9de2ce;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+        }
+        .sg-pipeline-hero h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: clamp(1.55rem, 3vw, 2.15rem);
+            line-height: 1.2;
+        }
+        .sg-pipeline-hero p {
+            max-width: 38rem;
+            margin: 0.6rem 0 0.8rem;
+            color: #d2deea;
+            font-size: 0.95rem;
+        }
+        .sg-hero-api { color: #c1cfde; font-size: 0.8rem; }
+        .sg-hero-api a { color: #9de2ce; text-decoration: underline; }
+        .sg-hero-stats {
+            display: flex;
+            flex: 0 0 auto;
+            gap: 0.75rem;
+        }
+        .sg-hero-stats > div {
+            display: flex;
+            min-width: 8.5rem;
+            flex-direction: column;
+            gap: 0.2rem;
+            padding: 0.85rem 1rem;
+            background: rgba(255, 255, 255, 0.09);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 12px;
+        }
+        .sg-hero-stats span { color: #d2deea; font-size: 0.75rem; }
+        .sg-hero-stats strong { color: #ffffff; font-size: 1.8rem; line-height: 1.1; }
+        .sg-hero-stats small { color: #b8c8d8; font-size: 0.7rem; }
+        @media (max-width: 720px) {
+            .sg-pipeline-hero { align-items: stretch; flex-direction: column; gap: 1rem; padding: 1.25rem; }
+            .sg-hero-stats > div { min-width: 0; flex: 1; }
+        }
+        .sg-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.75rem;
+            margin: 0.85rem 0 1.25rem;
+        }
+        .sg-metric-card {
+            display: flex;
+            min-height: 6.3rem;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 0.5rem;
+            padding: 0.9rem 1rem;
+            background: #ffffff;
+            border: 1px solid #d7e0e9;
+            border-bottom: 3px solid #94a3b8;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(26, 45, 68, 0.05);
+        }
+        .sg-metric-label {
+            color: #53657a;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .sg-metric-value {
+            color: #172b43;
+            font-size: 1.8rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .sg-metric-total {
+            background: linear-gradient(145deg, #172b43, #294967);
+            border-color: #294967;
+            border-bottom-color: #8ed8c3;
+        }
+        .sg-metric-total .sg-metric-label { color: #d5e1ec; }
+        .sg-metric-total .sg-metric-value { color: #ffffff; }
+        .sg-metric-new { border-bottom-color: #5b8def; }
+        .sg-metric-contacted { border-bottom-color: #e6a23c; }
+        .sg-metric-qualified { border-bottom-color: #36a879; }
+        .sg-metric-proposal { border-bottom-color: #9570d5; }
+        .sg-metric-won { border-bottom-color: #159b83; }
+        .sg-metric-lost { border-bottom-color: #d86b66; }
+        .sg-directory-spacer { height: 0.65rem; }
+        @media (max-width: 900px) {
+            .sg-metrics-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        @media (max-width: 560px) {
+            .sg-metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        div[data-testid="stRadio"] div[role="radiogroup"] {
+            gap: 0.6rem;
+            align-items: center;
+            padding: 0.55rem;
+            background: #dce4ed;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+        }
+        div[data-testid="stRadio"] {
+            position: sticky;
+            top: 9.6rem;
+            z-index: 999;
+            padding: 0.3rem 0;
+            background: #edf1f6;
+        }
+        div[data-testid="stRadio"] div[role="radiogroup"] label {
+            padding: 0.65rem 1rem;
+            border-radius: 9px;
+        }
+        div[data-testid="stRadio"] input[type="radio"] { accent-color: #8ed8c3; }
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) {
+            color: #ffffff;
+            background: #1e3a56;
+        }
+        div[data-testid="stRadio"] div[role="radiogroup"] label:has(input:checked) p {
+            color: #ffffff;
+            font-weight: 600;
+        }
         div[data-testid="stVerticalBlockBorderWrapper"] {
             background: #ffffff;
-            border-color: #e6e9f0;
-            border-radius: 10px;
+            border-color: #d7e0e9;
+            border-radius: 13px;
+            box-shadow: 0 3px 12px rgba(26, 45, 68, 0.04);
         }
-        .stButton > button { border-radius: 7px; }
+        .stButton > button, .stLinkButton > a {
+            border-radius: 9px;
+            font-weight: 550;
+        }
+        h1, h2, h3, h4 { color: #172b43; }
+        div[data-testid="stCaptionContainer"],
+        div[data-testid="stCaptionContainer"] p {
+            color: #475569 !important;
+            opacity: 1 !important;
+        }
         .status-pill {
             display: inline-block;
             padding: 0.15rem 0.5rem;
@@ -437,41 +833,38 @@ def main() -> None:
         """,
         unsafe_allow_html=True,
     )
-    st.sidebar.warning("Local development only. Authentication is not included.")
-    page = st.sidebar.radio(
-        "Navigation", ["Leads", "Add Lead", "Import CSV"], key="navigation"
+    st.markdown(
+        """
+        <div class="sg-brandbar">
+            <div class="sg-brand-mark">SG</div>
+            <div>
+                <div class="sg-brand-name">SalesGenie AI</div>
+                <div class="sg-brand-subtitle">LEAD INTELLIGENCE WORKSPACE</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
+    page = st.radio(
+        "Workspace navigation",
+        ["Leads", "Add Lead", "Import CSV", "Outreach"],
+        horizontal=True,
+        label_visibility="collapsed",
+        key="navigation",
+    )
+    st.caption("Local development workspace · Authentication is not enabled")
     if page == "Leads":
-        title, add_action, import_action, docs_action = st.columns([3.8, 1, 1, 0.8])
-        with title:
-            st.title("SalesGenie AI | Leads")
-            st.caption("Sales workspace · Lead management and company intelligence")
-        add_action.button(
-            "Add lead",
-            use_container_width=True,
-            on_click=set_navigation,
-            args=("Add Lead",),
-        )
-        import_action.button(
-            "Import CSV",
-            use_container_width=True,
-            on_click=set_navigation,
-            args=("Import CSV",),
-        )
-        docs_action.link_button(
-            "API docs",
-            f"{API_BASE_URL}/docs",
-            use_container_width=True,
-        )
         render_leads()
     elif page == "Add Lead":
-        st.title("SalesGenie AI")
-        st.caption("Lead pipeline · Company intelligence")
+        st.title("Add a lead")
+        st.caption("Create a prospect record for your sales pipeline.")
         render_add_lead()
-    else:
-        st.title("SalesGenie AI")
-        st.caption("Lead pipeline · Company intelligence")
+    elif page == "Import CSV":
+        st.title("Import leads")
+        st.caption("Add multiple prospects to your sales pipeline from a CSV file.")
         render_import()
+    else:
+        render_outreach()
 
 
 if __name__ == "__main__":

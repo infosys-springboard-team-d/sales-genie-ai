@@ -13,8 +13,17 @@ from api.analysis import (
     AnalysisProviderError,
     ProviderConfigurationError,
 )
+from api.outreach import OutreachContent, OutreachProviderError
 from db.database import create_database_engine
-from db.models import Base, CompanyInsight, ImportBatch, Lead, LeadScore
+from db.models import (
+    Activity,
+    Base,
+    CompanyInsight,
+    ImportBatch,
+    Lead,
+    LeadScore,
+    OutreachDraft,
+)
 from main import create_app
 
 
@@ -35,6 +44,19 @@ class FailingAnalysisProvider:
 class UnavailableOllamaProvider:
     def analyze(self, lead: Lead, context: str | None) -> AnalysisContent:
         raise AnalysisProviderError("Could not reach Ollama. Start Ollama.")
+
+
+class StubOutreachProvider:
+    def generate(self, lead: Lead, request: object) -> OutreachContent:
+        return OutreachContent(
+            subject=f"A relevant idea for {lead.company_name}",
+            body=f"Hello {lead.contact_name or 'there'}, could we discuss a fit?",
+        )
+
+
+class FailingOutreachProvider:
+    def generate(self, lead: Lead, request: object) -> OutreachContent:
+        raise OutreachProviderError("Could not reach Ollama.")
 
 
 @pytest.fixture
@@ -221,6 +243,117 @@ def test_analysis_is_saved_and_retrievable_for_same_lead(client: TestClient) -> 
     with Session(client.app.state.engine) as session:
         assert session.scalar(select(func.count()).select_from(CompanyInsight)) == 1
         assert session.scalar(select(func.count()).select_from(LeadScore)) == 1
+
+
+def test_lead_score_activity_and_recommendation_are_persisted(client: TestClient) -> None:
+    lead = create_lead(client)
+    lead_id = lead["lead_id"]
+
+    first_score = client.post(f"/api/v1/leads/{lead_id}/scores")
+    assert first_score.status_code == 201
+    score = first_score.json()
+    assert score["lead_id"] == lead_id
+    assert score["factors"] == {
+        "fit": 10,
+        "engagement": 0,
+        "intent": 0,
+        "decision_readiness": 15,
+    }
+    assert sum(score["factors"].values()) == score["score"]
+    assert score["recommendation"]["timing"] == "Today"
+
+    saved = client.get(f"/api/v1/leads/{lead_id}/scores/latest")
+    assert saved.status_code == 200
+    assert saved.json()["score_id"] == score["score_id"]
+    assert saved.json()["recommendation"] == score["recommendation"]
+
+    activity = client.post(
+        f"/api/v1/leads/{lead_id}/activities",
+        json={"activity_type": "reply", "details": "Asked for a product overview."},
+    )
+    assert activity.status_code == 201
+    assert activity.json()["details"] == {"note": "Asked for a product overview."}
+    activity_list = client.get(f"/api/v1/leads/{lead_id}/activities")
+    assert len(activity_list.json()) == 1
+
+    updated_score = client.post(f"/api/v1/leads/{lead_id}/scores")
+    assert updated_score.status_code == 201
+    assert updated_score.json()["factors"]["engagement"] == 5
+    assert updated_score.json()["score"] > score["score"]
+
+    with Session(client.app.state.engine) as session:
+        assert session.scalar(select(func.count()).select_from(Activity)) == 1
+        assert session.scalar(select(func.count()).select_from(LeadScore)) == 2
+
+
+def test_outreach_draft_generate_list_and_edit(client: TestClient) -> None:
+    client.app.state.outreach_provider = StubOutreachProvider()
+    lead = create_lead(client)
+    lead_id = lead["lead_id"]
+    payload = {
+        "draft_type": "email",
+        "tone": "friendly",
+        "length": "short",
+        "goal": "Start a conversation",
+        "pain_points": ["Manual reporting"],
+    }
+
+    generated = client.post(
+        f"/api/v1/leads/{lead_id}/outreach-drafts", json=payload
+    )
+    assert generated.status_code == 201
+    draft = generated.json()
+    assert draft["lead_id"] == lead_id
+    assert draft["content"].startswith("Subject: A relevant idea for Example Systems\n\n")
+    assert "Hello Jordan Lee" in draft["content"]
+
+    saved = client.get(f"/api/v1/leads/{lead_id}/outreach-drafts")
+    assert len(saved.json()) == 1
+    assert saved.json()[0]["draft_id"] == draft["draft_id"]
+
+    edited = client.patch(
+        f"/api/v1/outreach-drafts/{draft['draft_id']}",
+        json={"content": "Subject: Updated\n\nReviewed by a salesperson."},
+    )
+    assert edited.status_code == 200
+    assert edited.json()["content"] == "Subject: Updated\n\nReviewed by a salesperson."
+    assert client.get(f"/api/v1/leads/{lead_id}/outreach-drafts").json()[0]["content"] == edited.json()["content"]
+
+    with Session(client.app.state.engine) as session:
+        assert session.scalar(select(func.count()).select_from(OutreachDraft)) == 1
+
+
+def test_outreach_provider_failure_does_not_save_a_draft(client: TestClient) -> None:
+    client.app.state.outreach_provider = FailingOutreachProvider()
+    lead = create_lead(client)
+    response = client.post(
+        f"/api/v1/leads/{lead['lead_id']}/outreach-drafts",
+        json={"draft_type": "message", "goal": "Ask for a meeting"},
+    )
+
+    assert response.status_code == 502
+    assert response.json()["error"]["code"] == "AI_PROVIDER_ERROR"
+    assert client.get(
+        f"/api/v1/leads/{lead['lead_id']}/outreach-drafts"
+    ).json() == []
+    with Session(client.app.state.engine) as session:
+        assert session.scalar(select(func.count()).select_from(OutreachDraft)) == 0
+
+
+def test_latest_company_analysis_keeps_its_own_qualification_after_milestone2_score(
+    client: TestClient,
+) -> None:
+    lead = create_lead(client)
+    analysis = client.post(
+        f"/api/v1/leads/{lead['lead_id']}/analysis",
+        json={"context": "Synthetic notes."},
+    ).json()
+    client.post(f"/api/v1/leads/{lead['lead_id']}/scores")
+
+    saved_analysis = client.get(f"/api/v1/leads/{lead['lead_id']}/analysis")
+    assert saved_analysis.status_code == 200
+    assert saved_analysis.json()["analysis_id"] == analysis["analysis_id"]
+    assert saved_analysis.json()["qualification"] == analysis["qualification"]
 
 
 def test_analysis_provider_failure_never_returns_success_or_persists(

@@ -1,20 +1,29 @@
-# SalesGenie AI — Milestone 1
+# SalesGenie AI — Milestone 2
 
-Milestone 1 delivers a local lead-management and company-intelligence workflow:
-create or import a lead, search and update it, request company analysis, and
-retrieve the saved insight associated with that lead.
+Milestone 2 builds on the Milestone 1 lead-management and company-intelligence
+workflow with human-reviewed outreach drafts, explainable sales-readiness scores,
+and next-best-action recommendations.
 
 ## Features
 
 - FastAPI endpoints for lead creation, paginated search, retrieval, detail and
-  status updates, CSV import, company analysis, and saved-analysis retrieval.
-- Streamlit screens for leads, adding a lead, and importing CSV files.
-- SQLAlchemy models and Alembic migration for the eight-table project schema.
+  status updates, CSV import, company analysis, saved outreach, activity logging,
+  lead scoring, and recommendations.
+- Streamlit screens for leads, adding/importing leads, and an Outreach Strategy
+  panel for scoring, activity tracking, draft generation, editing, copying, and
+  opening a draft in the user's email client.
+- SQLAlchemy models and Alembic migrations for the eight-table project schema.
 - SQLite for local development; PostgreSQL 16 parity is supported.
 - CSV imports are all-or-nothing: any duplicate or invalid row prevents all
   leads in that file from being created.
-- Qualification is an explainable heuristic estimate, not a conversion
-  probability.
+- Scores are transparent rule-based estimates, not calibrated conversion
+  probabilities. The workbook's 85% scoring-accuracy target cannot be verified
+  until the project supplies labeled outcomes and an evaluation rubric.
+- Generated outreach is saved for human review and is never sent automatically.
+- Ollama generation uses domain-specific evidence-grounding instructions,
+  low-variance decoding, and schema-constrained JSON for company insights and
+  outreach. These improve consistency but do not constitute model-weight
+  fine-tuning or guarantee factual accuracy; human review remains required.
 
 Authentication is not implemented. Keep the app local and use synthetic data;
 do not expose it publicly or use real prospect data.
@@ -23,7 +32,8 @@ do not expose it publicly or use real prospect data.
 
 - Python 3.10 or newer
 - Git
-- Ollama for local company analysis (no hosted AI API key required)
+- Ollama with schema-constrained structured-output support for local company
+  analysis and outreach generation (no hosted AI API key required)
 - Docker Desktop only if you want to run the optional PostgreSQL service
 
 ## Run locally on Windows
@@ -79,12 +89,11 @@ see the project setup and API contract documents in the team's source materials.
 
 ## Verification status
 
-The implementation's SQLite tests passed on 24 October 2026, both in the
-configured and fresh Python 3.13 environments, with **17 passed, 1
-PostgreSQL-only test skipped**. A separate earlier PostgreSQL 16 run passed
-all 14 database/API tests and migration checks. A synthetic 20-record automated flow
-passed using a deterministic test provider; this does not measure real AI
-accuracy.
+The Milestone 2 API, provider, and database tests passed in SQLite. See
+[MILESTONE_2_TEST_REPORT.md](./MILESTONE_2_TEST_REPORT.md) for the current
+result and the scoring-accuracy evidence gap. The requester reports that the
+Milestone 1 team evaluation and walkthrough were completed; supporting
+case-level review and walkthrough records are not included here.
 
 The local Ollama `llama3.2:latest` model was exercised with synthetic input. A
 temporary-database API/UI end-to-end check generated, displayed, and retrieved
@@ -95,7 +104,4 @@ requester reports that the team approved the 20-case synthetic dataset and
 rubric, that Ollama completed 20/20 operational flows, and that human review
 scored 20/20 insights accurate (100%, meeting the >=95% target). The reviewer
 worksheet and reviewer identity were not supplied, so this evaluation is
-recorded as requester-reported. See
-[MILESTONE_1_TEST_REPORT.md](./MILESTONE_1_TEST_REPORT.md)
-and [runtime-validation-report.md](./runtime-validation-report.md) for evidence
-and remaining limits.
+recorded as requester-reported.
