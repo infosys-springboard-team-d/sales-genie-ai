@@ -114,7 +114,7 @@ _DEFAULT_PROFILE: dict[str, Any] = {
 
 
 def get_lead_firmographics(
-    lead_id: int, industry: str | None, email: str | None = None
+    lead_id: int | None, industry: str | None, email: str | None = None
 ) -> dict[str, Any]:
     """Return consistent, industry-aligned company profile attributes for any lead."""
     ind_lower = (industry or "").lower()
@@ -124,7 +124,7 @@ def get_lead_firmographics(
             profile = candidate
             break
 
-    idx = abs(int(lead_id))
+    idx = abs(int(lead_id or 0))
     sizes = profile["sizes"]
     revenues = profile["revenues"]
     locations = profile["locations"]

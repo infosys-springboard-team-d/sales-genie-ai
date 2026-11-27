@@ -39,7 +39,7 @@ def test_ollama_provider_parses_analysis_response() -> None:
     assert kwargs["json"]["model"] == "llama3.2:latest"
     assert kwargs["json"]["stream"] is False
     assert kwargs["json"]["format"] == AnalysisContent.model_json_schema()
-    assert kwargs["json"]["options"]["temperature"] == 0.2
+    assert kwargs["json"]["options"]["temperature"] == 0.4
     assert kwargs["json"]["options"]["top_p"] == 0.9
     assert kwargs["json"]["messages"][1]["content"].find("Synthetic test context") >= 0
     assert "concrete facts from the notes" in kwargs["json"]["messages"][0]["content"]
