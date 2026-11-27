@@ -10,6 +10,7 @@ on:
       - "db/**"
       - "main.py"
       - "requirements.txt"
+      - "resource/**"
       - ".github/workflows/database-migrations.yml"
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - "db/**"
       - "main.py"
       - "requirements.txt"
+      - "resource/**"
       - ".github/workflows/database-migrations.yml"
 
 jobs:
