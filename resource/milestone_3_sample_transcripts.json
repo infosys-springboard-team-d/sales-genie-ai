@@ -1,56 +1,42 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"label": "SalesGenie API",
-			"type": "shell",
-			"command": ".\\.venv\\Scripts\\python.exe",
-			"args": [
-				"-m",
-				"uvicorn",
-				"main:app",
-				"--host",
-				"127.0.0.1",
-				"--port",
-				"8001"
-			],
-			"isBackground": true,
-			"problemMatcher": []
-		},
-		{
-			"label": "SalesGenie API (port 8001)",
-			"type": "shell",
-			"command": "/c/Users/parvathraj/Downloads/SalesGenie/.venv/Scripts/python.exe",
-			"args": [
-				"-m",
-				"uvicorn",
-				"main:app",
-				"--host",
-				"127.0.0.1",
-				"--port",
-				"8001"
-			],
-			"isBackground": true,
-			"problemMatcher": []
-		},
-		{
-			"label": "SalesGenie UI (port 8501)",
-			"type": "shell",
-			"command": "env",
-			"args": [
-				"API_BASE_URL=http://127.0.0.1:8001",
-				"/c/Users/parvathraj/Downloads/SalesGenie/.venv/Scripts/python.exe",
-				"-m",
-				"streamlit",
-				"run",
-				"app.py",
-				"--server.address",
-				"127.0.0.1",
-				"--server.port",
-				"8501"
-			],
-			"isBackground": true,
-			"problemMatcher": []
-		}
-	]
+  "dataset": "SalesGenie Milestone 3 synthetic conversation cases",
+  "notice": "All names, companies, and conversation details are fictional. Expected facts and actions are evaluation cues, not model-generated output.",
+  "cases": [
+    {
+      "case_id": "call-001",
+      "interaction_type": "call",
+      "lead": {
+        "company_name": "Northstar Analytics",
+        "contact_name": "Jordan Lee"
+      },
+      "transcript": "Sales representative: What would be useful to cover in a follow-up? Jordan: Our team manually combines two spreadsheets for the weekly pipeline report. It takes about two hours each week. We are exploring options, but we have not made a purchase decision. Sales representative: I will send a sample reporting workflow by Tuesday. Jordan: I will review it with our finance lead and reply by Thursday.",
+      "expected_facts": [
+        "The weekly pipeline report is manually assembled from two spreadsheets.",
+        "The work takes about two hours per week.",
+        "No purchase decision has been made."
+      ],
+      "expected_action_items": [
+        "Sales representative to send a sample reporting workflow by Tuesday.",
+        "Jordan to review it with the finance lead and reply by Thursday."
+      ]
+    },
+    {
+      "case_id": "meeting-002",
+      "interaction_type": "meeting",
+      "lead": {
+        "company_name": "Cedar Works",
+        "contact_name": "Morgan Patel"
+      },
+      "transcript": "Morgan: We want to understand which contact fields and call activities would move between our CRM and SalesGenie. We have not selected the final field names yet. Sales representative: I will prepare a draft field map after our engineer checks the available contact properties, and send it by Friday. Morgan: I will confirm which lifecycle stages our team uses before our next meeting. No budget or close date was discussed.",
+      "expected_facts": [
+        "The requested discussion is about mapping contact fields and call activities.",
+        "Final field names are not selected.",
+        "No budget or close date was discussed."
+      ],
+      "expected_action_items": [
+        "Sales representative to send a draft field map by Friday after the engineer checks available contact properties.",
+        "Morgan to confirm the lifecycle stages before the next meeting; no date was specified."
+      ]
+    }
+  ]
 }
