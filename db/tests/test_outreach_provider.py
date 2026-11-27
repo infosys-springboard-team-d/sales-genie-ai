@@ -58,16 +58,21 @@ def test_ollama_outreach_provider_parses_a_personalized_email() -> None:
     assert kwargs["json"]["options"]["top_p"] == 0.9
     assert "Manual reporting" in kwargs["json"]["messages"][1]["content"]
     prompt = kwargs["json"]["messages"][0]["content"]
-    assert "Your notes mention" in prompt
+    assert "only source of truth" in prompt
+    assert "Do not infer a product, workflow" in prompt
+    assert "inventory reconciliation" not in prompt
+    assert "Cedar Works" not in prompt
+    assert "your notes mention..." in prompt
     assert "do not claim 'we can help'" in prompt
-    assert "A question about inventory reconciliation" in prompt
     assert "low-pressure CTA aligned with the goal" in prompt
 
 
 def test_ollama_outreach_provider_surfaces_unavailable_service() -> None:
     provider = OllamaOutreachProvider("http://localhost:11434", "llama3.2:latest")
     lead = Lead(company_name="Example Systems", lead_status="New")
-    request = OutreachGenerationRequest(goal="Ask for a meeting")
+    request = OutreachGenerationRequest(
+        goal="Ask for a meeting", pain_points=["Manual reporting"]
+    )
 
     with (
         patch(
@@ -86,10 +91,42 @@ def test_ollama_outreach_provider_rejects_missing_email_subject() -> None:
     }
     provider = OllamaOutreachProvider("http://localhost:11434", "llama3.2:latest")
     lead = Lead(company_name="Example Systems", lead_status="New")
-    request = OutreachGenerationRequest(goal="Ask for a meeting")
+    request = OutreachGenerationRequest(
+        goal="Ask for a meeting", pain_points=["Manual reporting"]
+    )
 
     with (
         patch("api.outreach.requests.post", return_value=response),
         pytest.raises(OutreachProviderError, match="email subject"),
     ):
         provider.generate(lead, request)
+
+
+@pytest.mark.parametrize(
+    ("draft_type", "expected_subject"),
+    [("email", "A brief conversation"), ("message", None)],
+)
+def test_ollama_outreach_provider_uses_neutral_template_without_pain_points(
+    draft_type: str, expected_subject: str | None
+) -> None:
+    provider = OllamaOutreachProvider("http://localhost:11434", "llama3.2:latest")
+    lead = Lead(
+        company_name="Browser QA Synthetic",
+        contact_name="Browser QA Contact",
+        industry="Software",
+        lead_status="New",
+    )
+    request = OutreachGenerationRequest(
+        draft_type=draft_type,
+        goal="Start a relevant sales conversation",
+    )
+
+    with patch("api.outreach.requests.post") as post:
+        result = provider.generate(lead, request)
+
+    assert result.subject == expected_subject
+    assert "Browser QA Contact" in result.body
+    assert "Start a relevant sales conversation" in result.body
+    assert "synthetic test data" not in result.body.lower()
+    assert "inventory reconciliation" not in result.body.lower()
+    post.assert_not_called()

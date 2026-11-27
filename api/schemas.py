@@ -283,3 +283,90 @@ class OutreachDraftUpdate(BaseModel):
         if not normalized:
             raise ValueError("content cannot be blank.")
         return normalized
+
+
+class ConversationSummaryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    interaction_type: Literal["call", "meeting"] = "call"
+    transcript: str = Field(min_length=1, max_length=40000)
+
+    @field_validator("transcript")
+    @classmethod
+    def normalize_transcript(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("transcript cannot be blank.")
+        return normalized
+
+
+class ConversationSummaryOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    summary_id: int
+    lead_id: int
+    interaction_type: Literal["call", "meeting"]
+    summary: str
+    key_points: list[str]
+    action_items: list[str]
+    created_at: datetime
+
+    @field_validator("created_at")
+    @classmethod
+    def conversation_timestamp_is_utc(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
+
+
+class CrmSyncRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider: Literal["salesforce", "hubspot"]
+    include_activities: bool = True
+    deal_id: str | None = Field(default=None, max_length=128)
+
+    @field_validator("deal_id", mode="before")
+    @classmethod
+    def normalize_deal_id(cls, value: object) -> object:
+        if isinstance(value, str):
+            return value.strip() or None
+        return value
+
+
+class CrmSyncOperationOut(BaseModel):
+    entity_type: Literal["contact", "activity", "deal_stage"]
+    status: Literal["succeeded", "failed"]
+    external_id: str | None = None
+    error_code: str | None = None
+
+
+class CrmSyncOut(BaseModel):
+    provider: Literal["salesforce", "hubspot"]
+    status: Literal["succeeded", "partial"]
+    contact_external_id: str
+    activities_synced: int
+    activities_failed: int
+    deal_stage_status: Literal["not_requested", "succeeded", "failed"]
+    operations: list[CrmSyncOperationOut]
+
+
+class CrmSyncLogOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    crm_sync_log_id: int
+    lead_id: int | None
+    provider: Literal["salesforce", "hubspot"]
+    entity_type: Literal["contact", "activity", "deal_stage"]
+    record_ref: str
+    status: Literal["succeeded", "failed"]
+    external_id: str | None
+    error_code: str | None
+    created_at: datetime
+
+    @field_validator("created_at")
+    @classmethod
+    def crm_sync_timestamp_is_utc(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)

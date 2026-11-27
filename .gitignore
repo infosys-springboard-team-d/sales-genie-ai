@@ -3,5 +3,8 @@
 __pycache__/
 *.py[cod]
 *.db
+*.db.bak
 *.sqlite
 *.sqlite3
+.pytest_cache/
+test_write.txt

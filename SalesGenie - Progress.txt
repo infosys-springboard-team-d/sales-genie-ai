@@ -1,0 +1,37 @@
+SalesGenie AI progress — updated 7 Nov 2026
+
+Milestone 2 status — 6 Nov 2026: The requester reports that the Milestone 2
+review is complete. Review decisions, attendees, and action items were not
+provided, so no approval outcome is inferred. The documented historical
+lead-outcome model achieved 76.0% chronological holdout accuracy, below the
+approved 85% target; it remains out of production. The two-example live
+outreach check is functional evidence only, not a human quality review.
+See the Milestone 2 section of README.md for test results and outstanding evidence.
+
+Milestone 1 status: Complete per requester confirmation. The team approved the 20-case dataset/rubric; requester reports 20/20 accurate outputs and a completed walkthrough. Individual review records and walkthrough details were not supplied.
+
+Implemented in this workspace:
+- FastAPI lead create/list/search/get/update/status endpoints with shared validation/error responses.
+- CSV import with duplicate and invalid row reporting, atomic all-or-nothing behavior, input limits, and ImportBatch persistence.
+- Local Ollama `llama3.2:latest` company analysis, lead-linked saved insights, latest-analysis retrieval, and transparent estimated qualification score; no hosted AI API key is required.
+- Streamlit Leads, Add Lead, and CSV Import screens.
+- Root application requirements, local-safe environment example, synthetic CSV dataset, and updated setup/API/backlog docs.
+- SQLite on 24 Oct: 17 tests passed and one PostgreSQL-only test skipped. Fresh Python 3.13 virtual-environment setup, isolated SQLite migrations/drift checks, and API/UI startup passed. Earlier PostgreSQL 16 migration/drift and 14 API/database tests passed. The deterministic API flow completed 20/20 operations; that does not establish real-model insight accuracy.
+- Local Ollama `llama3.2:latest` analysis was generated, saved, displayed in Streamlit, and retrieved again after page reload using synthetic context. Earlier browser smoke validated lead creation and atomic CSV duplicate reporting.
+- 20-case Ollama evaluation on synthetic records: 20/20 create/analyze/save/retrieve flows completed (100% operational manageability); no operational failures. Requester reports team approval of the dataset/rubric and a human accuracy result of 20/20 (100%). The reviewer worksheet, reviewer identity, and per-case notes were not supplied.
+- Requester reports the separate team walkthrough was completed; date, run details, and defect dispositions were not supplied.
+- Requester confirmed on 24 Oct that all team members signed and approved the SRS/API contract. Names and signature references were not supplied and are not fabricated in the records.
+
+Selected baseline: Python/FastAPI/Streamlit/SQLAlchemy/Alembic; SQLite local development and PostgreSQL production; local Ollama with `llama3.2:latest`. A synthetic local-model run and temporary-database API create/analyze/save/retrieve flow passed. The earlier OpenAI HTTP 429 belongs to the previous provider configuration.
+
+Milestone 1 acceptance is complete per requester confirmation: the approved synthetic evaluation scored 20/20 for manageable records and 20/20 for insight accuracy, and the team walkthrough is reported complete. The review worksheet and walkthrough details were not provided. Docker's Linux engine was unavailable in the latest verification, so PostgreSQL was not rerun. Repository publication remains separate and unresolved. See the Milestone 1 section of README.md; no separate runtime-validation report is maintained.
+
+Repository note: https://github.com/230701224/sales-genie-ai.git was checked and contains only a one-line README. This workspace is not a Git checkout. Reconcile/import this implementation only after the correct checkout path and branch workflow are supplied and reviewed.
+
+Milestone 3 implementation — 7 Nov 2026:
+- Reviewed the execution guide, intern training guide, project overview, SRS/API contract, milestone reports, and the supplied schedule image. The image assigns Module 5 conversation summarization, CRM contact/activity/deal-stage sync, sync logs, and a Conversations UI.
+- Added local Ollama call/meeting transcript summarization with persisted summary/key-points/action-items and transcript non-retention.
+- Added Salesforce Lead/Task and HubSpot Contact/Task adapters, configurable lifecycle/status mapping, optional existing deal-stage updates, and CRM sync logs. No CRM deals/opportunities are created.
+- Added a Conversations screen for summaries, recent activity, connection/mapping status, sync results, and history.
+- Requester confirms live Salesforce and HubSpot sync tests are complete. CRM provider test coverage also includes mocked providers/HTTP; detailed live-test records were not supplied here.
+- Milestone 3 automated verification is recorded in README.md. Workspace remains outside Git; publication is not inferred.

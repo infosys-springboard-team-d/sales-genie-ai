@@ -1,0 +1,101 @@
+{
+  "acceptance_target_accuracy": 0.85,
+  "candidate_model_file": "lead_outcome_candidate.joblib",
+  "dataset_sha256": "56ec4670bcbfcd9d1502950d93de6e9c9e0503c18cfe5f5c0793f79913224c33",
+  "dataset_source_file": "milestone_2_scoring_outcomes_dataset.csv",
+  "distinct_leads": 500,
+  "evaluation_type": "user_provided_historical_outcomes",
+  "features": [
+    "industry",
+    "lead_status_at_snapshot",
+    "has_contact_name",
+    "has_email",
+    "has_phone",
+    "has_analysis_need",
+    "has_analysis_opportunity",
+    "recent_activity_count_30d",
+    "conversation_count_to_date"
+  ],
+  "holdout_count": 100,
+  "holdout_metrics": {
+    "accuracy": 0.76,
+    "accuracy_95_percent_wilson_interval": [
+      0.6676766365018553,
+      0.8330867444305122
+    ],
+    "actual_positive_count": 35,
+    "balanced_accuracy": 0.7362637362637363,
+    "confusion_matrix_labels_0_1": [
+      [
+        53,
+        12
+      ],
+      [
+        12,
+        23
+      ]
+    ],
+    "correct_predictions": 76,
+    "f1": 0.6571428571428571,
+    "majority_class_baseline_accuracy": 0.65,
+    "precision": 0.6571428571428571,
+    "recall": 0.6571428571428571
+  },
+  "holdout_start_utc": "2026-04-22T00:00:00+00:00",
+  "interpretation": "The holdout result is the measured accuracy on later-dated supplied leads only. It must not be represented as a general guarantee or used to claim production approval.",
+  "limitations": [
+    "The supplied file's provenance and labels were not independently audited.",
+    "The latest-period holdout contains 100 leads; results have sampling uncertainty.",
+    "This candidate is not integrated into SalesGenie production scoring.",
+    "No email draft text or human email-review labels are present in this dataset."
+  ],
+  "model_selection": "highest mean accuracy in 5-fold expanding TimeSeriesSplit on training period",
+  "negative_count": 306,
+  "positive_count": 194,
+  "positive_label": "Won within 90 days after the scoring snapshot",
+  "production_approved": false,
+  "production_status": "not_met",
+  "rows": 500,
+  "scikit_learn_version": "1.9.1",
+  "selected_model": "random_forest",
+  "snapshot_end_utc": "2026-07-31T00:00:00+00:00",
+  "snapshot_start_utc": "2025-01-04T00:00:00+00:00",
+  "split_method": "chronological 80/20 by snapshot date; one snapshot per lead",
+  "target_met_on_holdout": false,
+  "train_count": 400,
+  "training_period_cross_validation": {
+    "hist_gradient_boosting": {
+      "fold_accuracy": [
+        0.7575757575757576,
+        0.7272727272727273,
+        0.8181818181818182,
+        0.7727272727272727,
+        0.7121212121212122
+      ],
+      "mean_accuracy": 0.7575757575757576,
+      "std_accuracy": 0.037113480951260276
+    },
+    "logistic_regression": {
+      "fold_accuracy": [
+        0.7727272727272727,
+        0.696969696969697,
+        0.8333333333333334,
+        0.7575757575757576,
+        0.7272727272727273
+      ],
+      "mean_accuracy": 0.7575757575757576,
+      "std_accuracy": 0.0459568208730397
+    },
+    "random_forest": {
+      "fold_accuracy": [
+        0.803030303030303,
+        0.7272727272727273,
+        0.8181818181818182,
+        0.7424242424242424,
+        0.7575757575757576
+      ],
+      "mean_accuracy": 0.7696969696969698,
+      "std_accuracy": 0.03507829364481886
+    }
+  }
+}

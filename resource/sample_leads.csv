@@ -1,4 +1,6 @@
 company_name,industry,contact_name,email,phone,lead_status
-Northstar Analytics,Software,Casey Morgan,casey.morgan@example.test,+1-555-0101,New
-Cedar Ridge Manufacturing,Manufacturing,Taylor Patel,taylor.patel@example.test,+1-555-0102,Contacted
-Blue Harbor Consulting,Professional Services,Riley Chen,riley.chen@example.test,+1-555-0103,Qualified
+QuantumPulse Cloud,Enterprise Software,Ananya Rao,ananya.rao@quantumpulse.com,+1-555-0241,New
+MedBridge Diagnostics,Healthcare,Marcus Vance,marcus.vance@medbridgedx.com,+1-555-0242,Qualified
+Helios Grid Systems,Manufacturing,Elena Rostova,elena.rostova@heliosgrid.com,+1-555-0243,Contacted
+Stratos Logistics AI,Logistics,Devon Brooks,devon.brooks@stratoslog.com,+1-555-0244,Proposal
+NovaBio Therapeutics,Biotechnology,Priya Nair,priya.nair@novabio.com,+1-555-0245,New

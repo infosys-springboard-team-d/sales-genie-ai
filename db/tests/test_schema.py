@@ -23,6 +23,7 @@ EXPECTED_TABLES = {
     "outreach_drafts",
     "activities",
     "conversation_summaries",
+    "crm_sync_logs",
     "import_batches",
     "agent_runs",
 }
@@ -36,8 +37,8 @@ class DatabaseMigrationTests(unittest.TestCase):
         self.previous_database_url = os.environ.get("DATABASE_URL")
         os.environ["DATABASE_URL"] = self.database_url
 
-        config = Config(str(ROOT / "alembic.ini"))
-        command.upgrade(config, "head")
+        self.config = Config(str(ROOT / "alembic.ini"))
+        command.upgrade(self.config, "head")
         self.engine = create_database_engine(self.database_url)
 
     def tearDown(self) -> None:
@@ -48,9 +49,29 @@ class DatabaseMigrationTests(unittest.TestCase):
             os.environ["DATABASE_URL"] = self.previous_database_url
         self.temp_dir.cleanup()
 
-    def test_migration_creates_the_eight_tables(self) -> None:
+    def test_migration_creates_the_nine_tables(self) -> None:
         tables = set(inspect(self.engine).get_table_names()) - {"alembic_version"}
         self.assertEqual(tables, EXPECTED_TABLES)
+
+    def test_milestone3_columns_and_crm_sync_indexes_exist(self) -> None:
+        summary_columns = {
+            column["name"]
+            for column in inspect(self.engine).get_columns("conversation_summaries")
+        }
+        self.assertIn("interaction_type", summary_columns)
+        crm_indexes = {
+            index["name"] for index in inspect(self.engine).get_indexes("crm_sync_logs")
+        }
+        self.assertIn("ix_crm_sync_logs_lead_created", crm_indexes)
+        self.assertIn("ix_crm_sync_logs_provider_record", crm_indexes)
+
+    def test_migration_metadata_has_no_drift(self) -> None:
+        command.check(self.config)
+
+    def test_all_migrations_can_downgrade_to_base(self) -> None:
+        command.downgrade(self.config, "base")
+        tables = set(inspect(self.engine).get_table_names()) - {"alembic_version"}
+        self.assertEqual(tables, set())
 
     def test_normalized_email_is_unique(self) -> None:
         with Session(self.engine) as session:

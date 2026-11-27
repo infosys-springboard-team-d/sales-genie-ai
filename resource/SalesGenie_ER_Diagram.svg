@@ -1,0 +1,197 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2440" height="1850" viewBox="0 0 2440 1850" role="img" aria-labelledby="title description">
+  <title id="title">SalesGenie detailed database ER diagram — all eight tables</title>
+  <desc id="description">All columns, SQL types, nullability, primary keys, foreign keys, and relationships for the eight-table SQLAlchemy schema. Six child tables relate to leads. Import batches are separate import-operation records and have no lead foreign key.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M1 1 L11 6 L1 11 Z" fill="#218a84"/>
+    </marker>
+    <style>
+      text { font-family: "Segoe UI", Arial, sans-serif; fill: #17324d; }
+      .title { font-size: 40px; font-weight: 700; }
+      .subtitle { font-size: 20px; fill: #52657c; }
+      .table { fill: #fff; stroke: #d0dae5; stroke-width: 2; }
+      .table-leads { fill: #fff; stroke: #1c5d7a; stroke-width: 3; }
+      .table-import { fill: #fff; stroke: #8290a0; stroke-width: 2; stroke-dasharray: 8 6; }
+      .head { fill: #245d7a; }
+      .head-insight { fill: #7a4197; }
+      .head-score { fill: #17816a; }
+      .head-outreach { fill: #c15a1c; }
+      .head-activity { fill: #285b98; }
+      .head-conversation { fill: #9a2744; }
+      .head-agent { fill: #54509b; }
+      .head-import { fill: #667487; }
+      .table-name { fill: #fff; font-size: 21px; font-weight: 700; }
+      .column-head { font-size: 13px; font-weight: 700; fill: #687b91; }
+      .field { font-size: 16px; }
+      .field-pk { font-weight: 700; fill: #264f8c; }
+      .field-fk { font-weight: 700; fill: #167466; }
+      .row { stroke: #e7edf3; stroke-width: 1; }
+      .edge { fill: none; stroke: #218a84; stroke-width: 3; marker-end: url(#arrow); }
+      .edge-trunk { fill: none; stroke: #218a84; stroke-width: 3; }
+      .cardinality { font-size: 14px; font-weight: 700; fill: #18756f; }
+      .legend { font-size: 15px; fill: #51647a; }
+      .note { font-size: 15px; fill: #566579; }
+      .legend-box { fill: #fff; stroke: #d0dae5; stroke-width: 1.5; }
+    </style>
+  </defs>
+
+  <rect width="2440" height="1810" fill="#f3f6fb"/>
+  <rect x="60" y="28" width="210" height="34" rx="17" fill="#08a99c"/>
+  <text x="165" y="51" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">DATABASE DESIGN</text>
+  <text class="title" x="60" y="112">SalesGenie — Detailed Database Schema</text>
+  <text class="subtitle" x="60" y="148">All 8 tables • every column and key • SQLAlchemy / Alembic • SQLite + PostgreSQL</text>
+
+  <!-- Lead-to-child relationship trunks are behind the table cards. -->
+  <path class="edge-trunk" d="M1150 585 V665 H425 M1150 665 H1875"/>
+  <path class="edge" d="M425 665 V704"/>
+  <path class="edge" d="M1150 665 V704"/>
+  <path class="edge" d="M1875 665 V704"/>
+  <path class="edge-trunk" d="M800 400 H40 V1240 H1875"/>
+  <path class="edge" d="M425 1240 V1274"/>
+  <path class="edge" d="M1150 1240 V1274"/>
+  <path class="edge" d="M1875 1240 V1274"/>
+  <text class="cardinality" x="447" y="690">1 : N</text>
+  <text class="cardinality" x="1172" y="690">1 : N</text>
+  <text class="cardinality" x="1897" y="690">1 : N</text>
+  <text class="cardinality" x="447" y="1267">1 : N</text>
+  <text class="cardinality" x="1172" y="1267">1 : N</text>
+  <text class="cardinality" x="1897" y="1267">1 : N</text>
+
+  <!-- Leads -->
+  <g aria-label="leads table">
+    <rect class="table-leads" x="800" y="180" width="700" height="405" rx="12"/>
+    <path d="M812 180 H1488 Q1500 180 1500 192 V230 H800 V192 Q800 180 812 180 Z" fill="#1c5d7a"/>
+    <text class="table-name" x="830" y="213">leads</text>
+    <text class="column-head" x="830" y="257">COLUMN</text><text class="column-head" x="1120" y="257">TYPE</text><text class="column-head" x="1295" y="257">NULL</text><text class="column-head" x="1390" y="257">KEY</text>
+    <path class="row" d="M820 266 H1480"/>
+    <text class="field field-pk" x="830" y="288">lead_id</text><text class="field" x="1120" y="288">INTEGER</text><text class="field" x="1295" y="288">No</text><text class="field field-pk" x="1390" y="288">PK</text>
+    <text class="field" x="830" y="322">company_name</text><text class="field" x="1120" y="322">VARCHAR(255)</text><text class="field" x="1295" y="322">No</text><text class="field" x="1390" y="322">—</text>
+    <text class="field" x="830" y="356">industry</text><text class="field" x="1120" y="356">VARCHAR(120)</text><text class="field" x="1295" y="356">Yes</text><text class="field" x="1390" y="356">—</text>
+    <text class="field" x="830" y="390">contact_name</text><text class="field" x="1120" y="390">VARCHAR(255)</text><text class="field" x="1295" y="390">Yes</text><text class="field" x="1390" y="390">—</text>
+    <text class="field" x="830" y="424">email</text><text class="field" x="1120" y="424">VARCHAR(320)</text><text class="field" x="1295" y="424">Yes</text><text class="field" x="1390" y="424">Unique*</text>
+    <text class="field" x="830" y="458">phone</text><text class="field" x="1120" y="458">VARCHAR(64)</text><text class="field" x="1295" y="458">Yes</text><text class="field" x="1390" y="458">—</text>
+    <text class="field" x="830" y="492">lead_status</text><text class="field" x="1120" y="492">VARCHAR(20)</text><text class="field" x="1295" y="492">No</text><text class="field" x="1390" y="492">Default New</text>
+    <text class="field" x="830" y="526">created_at</text><text class="field" x="1120" y="526">TIMESTAMPTZ</text><text class="field" x="1295" y="526">No</text><text class="field" x="1390" y="526">—</text>
+    <text class="field" x="830" y="560">updated_at</text><text class="field" x="1120" y="560">TIMESTAMPTZ</text><text class="field" x="1295" y="560">No</text><text class="field" x="1390" y="560">—</text>
+  </g>
+
+  <!-- CSV import batches: intentionally no lead foreign key. -->
+  <g aria-label="import_batches table">
+    <rect class="table-import" x="1680" y="180" width="700" height="405" rx="12"/>
+    <path d="M1692 180 H2368 Q2380 180 2380 192 V230 H1680 V192 Q1680 180 1692 180 Z" fill="#667487"/>
+    <text class="table-name" x="1710" y="213">import_batches</text>
+    <text class="column-head" x="1710" y="257">COLUMN</text><text class="column-head" x="1995" y="257">TYPE</text><text class="column-head" x="2170" y="257">NULL</text><text class="column-head" x="2265" y="257">KEY</text>
+    <path class="row" d="M1700 266 H2360"/>
+    <text class="field field-pk" x="1710" y="288">import_batch_id</text><text class="field" x="1995" y="288">INTEGER</text><text class="field" x="2170" y="288">No</text><text class="field field-pk" x="2265" y="288">PK</text>
+    <text class="field" x="1710" y="322">filename</text><text class="field" x="1995" y="322">VARCHAR(255)</text><text class="field" x="2170" y="322">Yes</text><text class="field" x="2265" y="322">—</text>
+    <text class="field" x="1710" y="356">status</text><text class="field" x="1995" y="356">VARCHAR(20)</text><text class="field" x="2170" y="356">No</text><text class="field" x="2265" y="356">Default processing</text>
+    <text class="field" x="1710" y="390">created_count</text><text class="field" x="1995" y="390">INTEGER</text><text class="field" x="2170" y="390">No</text><text class="field" x="2265" y="390">Default 0</text>
+    <text class="field" x="1710" y="424">duplicate_count</text><text class="field" x="1995" y="424">INTEGER</text><text class="field" x="2170" y="424">No</text><text class="field" x="2265" y="424">Default 0</text>
+    <text class="field" x="1710" y="458">rejected_count</text><text class="field" x="1995" y="458">INTEGER</text><text class="field" x="2170" y="458">No</text><text class="field" x="2265" y="458">Default 0</text>
+    <text class="field" x="1710" y="492">row_errors</text><text class="field" x="1995" y="492">JSON</text><text class="field" x="2170" y="492">No</text><text class="field" x="2265" y="492">Default []</text>
+    <text class="field" x="1710" y="526">created_at</text><text class="field" x="1995" y="526">TIMESTAMPTZ</text><text class="field" x="2170" y="526">No</text><text class="field" x="2265" y="526">—</text>
+    <text class="field" x="1710" y="560">completed_at</text><text class="field" x="1995" y="560">TIMESTAMPTZ</text><text class="field" x="2170" y="560">Yes</text><text class="field" x="2265" y="560">—</text>
+  </g>
+
+  <!-- Company insights -->
+  <g aria-label="company_insights table">
+    <rect class="table" x="75" y="710" width="700" height="390" rx="12"/>
+    <path d="M87 710 H763 Q775 710 775 722 V760 H75 V722 Q75 710 87 710 Z" class="head-insight"/>
+    <text class="table-name" x="105" y="743">company_insights</text>
+    <text class="column-head" x="105" y="787">COLUMN</text><text class="column-head" x="395" y="787">TYPE</text><text class="column-head" x="570" y="787">NULL</text><text class="column-head" x="665" y="787">KEY</text>
+    <path class="row" d="M95 796 H755"/>
+    <text class="field field-pk" x="105" y="818">analysis_id</text><text class="field" x="395" y="818">INTEGER</text><text class="field" x="570" y="818">No</text><text class="field field-pk" x="665" y="818">PK</text>
+    <text class="field field-fk" x="105" y="852">lead_id</text><text class="field" x="395" y="852">INTEGER</text><text class="field" x="570" y="852">No</text><text class="field field-fk" x="665" y="852">FK</text>
+    <text class="field" x="105" y="886">summary</text><text class="field" x="395" y="886">TEXT</text><text class="field" x="570" y="886">No</text><text class="field" x="665" y="886">—</text>
+    <text class="field" x="105" y="920">potential_needs</text><text class="field" x="395" y="920">JSON</text><text class="field" x="570" y="920">No</text><text class="field" x="665" y="920">Default []</text>
+    <text class="field" x="105" y="954">opportunities</text><text class="field" x="395" y="954">JSON</text><text class="field" x="570" y="954">No</text><text class="field" x="665" y="954">Default []</text>
+    <text class="field" x="105" y="988">qualification_score</text><text class="field" x="395" y="988">INTEGER</text><text class="field" x="570" y="988">Yes</text><text class="field" x="665" y="988">0–100</text>
+    <text class="field" x="105" y="1022">qualification_rationale</text><text class="field" x="395" y="1022">TEXT</text><text class="field" x="570" y="1022">Yes</text><text class="field" x="665" y="1022">—</text>
+    <text class="field" x="105" y="1056">created_at</text><text class="field" x="395" y="1056">TIMESTAMPTZ</text><text class="field" x="570" y="1056">No</text><text class="field" x="665" y="1056">—</text>
+  </g>
+
+  <!-- Lead scores -->
+  <g aria-label="lead_scores table">
+    <rect class="table" x="800" y="710" width="700" height="350" rx="12"/>
+    <path d="M812 710 H1488 Q1500 710 1500 722 V760 H800 V722 Q800 710 812 710 Z" class="head-score"/>
+    <text class="table-name" x="830" y="743">lead_scores</text>
+    <text class="column-head" x="830" y="787">COLUMN</text><text class="column-head" x="1120" y="787">TYPE</text><text class="column-head" x="1295" y="787">NULL</text><text class="column-head" x="1390" y="787">KEY</text>
+    <path class="row" d="M820 796 H1480"/>
+    <text class="field field-pk" x="830" y="818">score_id</text><text class="field" x="1120" y="818">INTEGER</text><text class="field" x="1295" y="818">No</text><text class="field field-pk" x="1390" y="818">PK</text>
+    <text class="field field-fk" x="830" y="852">lead_id</text><text class="field" x="1120" y="852">INTEGER</text><text class="field" x="1295" y="852">No</text><text class="field field-fk" x="1390" y="852">FK</text>
+    <text class="field" x="830" y="886">score</text><text class="field" x="1120" y="886">INTEGER</text><text class="field" x="1295" y="886">No</text><text class="field" x="1390" y="886">0–100</text>
+    <text class="field" x="830" y="920">rationale</text><text class="field" x="1120" y="920">TEXT</text><text class="field" x="1295" y="920">No</text><text class="field" x="1390" y="920">—</text>
+    <text class="field" x="830" y="954">factors</text><text class="field" x="1120" y="954">JSON</text><text class="field" x="1295" y="954">No</text><text class="field" x="1390" y="954">Default {}</text>
+    <text class="field" x="830" y="988">created_at</text><text class="field" x="1120" y="988">TIMESTAMPTZ</text><text class="field" x="1295" y="988">No</text><text class="field" x="1390" y="988">—</text>
+  </g>
+
+  <!-- Outreach drafts -->
+  <g aria-label="outreach_drafts table">
+    <rect class="table" x="1525" y="710" width="700" height="320" rx="12"/>
+    <path d="M1537 710 H2213 Q2225 710 2225 722 V760 H1525 V722 Q1525 710 1537 710 Z" class="head-outreach"/>
+    <text class="table-name" x="1555" y="743">outreach_drafts</text>
+    <text class="column-head" x="1555" y="787">COLUMN</text><text class="column-head" x="1845" y="787">TYPE</text><text class="column-head" x="2020" y="787">NULL</text><text class="column-head" x="2115" y="787">KEY</text>
+    <path class="row" d="M1545 796 H2205"/>
+    <text class="field field-pk" x="1555" y="818">draft_id</text><text class="field" x="1845" y="818">INTEGER</text><text class="field" x="2020" y="818">No</text><text class="field field-pk" x="2115" y="818">PK</text>
+    <text class="field field-fk" x="1555" y="852">lead_id</text><text class="field" x="1845" y="852">INTEGER</text><text class="field" x="2020" y="852">No</text><text class="field field-fk" x="2115" y="852">FK</text>
+    <text class="field" x="1555" y="886">draft_type</text><text class="field" x="1845" y="886">VARCHAR(20)</text><text class="field" x="2020" y="886">No</text><text class="field" x="2115" y="886">—</text>
+    <text class="field" x="1555" y="920">content</text><text class="field" x="1845" y="920">TEXT</text><text class="field" x="2020" y="920">No</text><text class="field" x="2115" y="920">—</text>
+    <text class="field" x="1555" y="954">created_at</text><text class="field" x="1845" y="954">TIMESTAMPTZ</text><text class="field" x="2020" y="954">No</text><text class="field" x="2115" y="954">—</text>
+  </g>
+
+  <!-- Activities -->
+  <g aria-label="activities table">
+    <rect class="table" x="75" y="1280" width="700" height="320" rx="12"/>
+    <path d="M87 1280 H763 Q775 1280 775 1292 V1330 H75 V1292 Q75 1280 87 1280 Z" class="head-activity"/>
+    <text class="table-name" x="105" y="1313">activities</text>
+    <text class="column-head" x="105" y="1357">COLUMN</text><text class="column-head" x="395" y="1357">TYPE</text><text class="column-head" x="570" y="1357">NULL</text><text class="column-head" x="665" y="1357">KEY</text>
+    <path class="row" d="M95 1366 H755"/>
+    <text class="field field-pk" x="105" y="1388">activity_id</text><text class="field" x="395" y="1388">INTEGER</text><text class="field" x="570" y="1388">No</text><text class="field field-pk" x="665" y="1388">PK</text>
+    <text class="field field-fk" x="105" y="1422">lead_id</text><text class="field" x="395" y="1422">INTEGER</text><text class="field" x="570" y="1422">No</text><text class="field field-fk" x="665" y="1422">FK</text>
+    <text class="field" x="105" y="1456">activity_type</text><text class="field" x="395" y="1456">VARCHAR(60)</text><text class="field" x="570" y="1456">No</text><text class="field" x="665" y="1456">—</text>
+    <text class="field" x="105" y="1490">details</text><text class="field" x="395" y="1490">JSON</text><text class="field" x="570" y="1490">No</text><text class="field" x="665" y="1490">Default {}</text>
+    <text class="field" x="105" y="1524">occurred_at</text><text class="field" x="395" y="1524">TIMESTAMPTZ</text><text class="field" x="570" y="1524">No</text><text class="field" x="665" y="1524">—</text>
+    <text class="field" x="105" y="1558">created_at</text><text class="field" x="395" y="1558">TIMESTAMPTZ</text><text class="field" x="570" y="1558">No</text><text class="field" x="665" y="1558">—</text>
+  </g>
+
+  <!-- Conversation summaries -->
+  <g aria-label="conversation_summaries table">
+    <rect class="table" x="800" y="1280" width="700" height="350" rx="12"/>
+    <path d="M812 1280 H1488 Q1500 1280 1500 1292 V1330 H800 V1292 Q800 1280 812 1280 Z" class="head-conversation"/>
+    <text class="table-name" x="830" y="1313">conversation_summaries</text>
+    <text class="column-head" x="830" y="1357">COLUMN</text><text class="column-head" x="1120" y="1357">TYPE</text><text class="column-head" x="1295" y="1357">NULL</text><text class="column-head" x="1390" y="1357">KEY</text>
+    <path class="row" d="M820 1366 H1480"/>
+    <text class="field field-pk" x="830" y="1388">summary_id</text><text class="field" x="1120" y="1388">INTEGER</text><text class="field" x="1295" y="1388">No</text><text class="field field-pk" x="1390" y="1388">PK</text>
+    <text class="field field-fk" x="830" y="1422">lead_id</text><text class="field" x="1120" y="1422">INTEGER</text><text class="field" x="1295" y="1422">Yes</text><text class="field field-fk" x="1390" y="1422">FK</text>
+    <text class="field" x="830" y="1456">summary</text><text class="field" x="1120" y="1456">TEXT</text><text class="field" x="1295" y="1456">No</text><text class="field" x="1390" y="1456">—</text>
+    <text class="field" x="830" y="1490">key_points</text><text class="field" x="1120" y="1490">JSON</text><text class="field" x="1295" y="1490">No</text><text class="field" x="1390" y="1490">Default []</text>
+    <text class="field" x="830" y="1524">action_items</text><text class="field" x="1120" y="1524">JSON</text><text class="field" x="1295" y="1524">No</text><text class="field" x="1390" y="1524">Default []</text>
+    <text class="field" x="830" y="1558">created_at</text><text class="field" x="1120" y="1558">TIMESTAMPTZ</text><text class="field" x="1295" y="1558">No</text><text class="field" x="1390" y="1558">—</text>
+  </g>
+
+  <!-- Agent workflow runs -->
+  <g aria-label="agent_runs table">
+    <rect class="table" x="1525" y="1280" width="700" height="455" rx="12"/>
+    <path d="M1537 1280 H2213 Q2225 1280 2225 1292 V1330 H1525 V1292 Q1525 1280 1537 1280 Z" class="head-agent"/>
+    <text class="table-name" x="1555" y="1313">agent_runs</text>
+    <text class="column-head" x="1555" y="1357">COLUMN</text><text class="column-head" x="1845" y="1357">TYPE</text><text class="column-head" x="2020" y="1357">NULL</text><text class="column-head" x="2115" y="1357">KEY</text>
+    <path class="row" d="M1545 1366 H2205"/>
+    <text class="field field-pk" x="1555" y="1388">agent_run_id</text><text class="field" x="1845" y="1388">INTEGER</text><text class="field" x="2020" y="1388">No</text><text class="field field-pk" x="2115" y="1388">PK</text>
+    <text class="field field-fk" x="1555" y="1422">lead_id</text><text class="field" x="1845" y="1422">INTEGER</text><text class="field" x="2020" y="1422">Yes</text><text class="field field-fk" x="2115" y="1422">FK</text>
+    <text class="field" x="1555" y="1456">workflow_name</text><text class="field" x="1845" y="1456">VARCHAR(100)</text><text class="field" x="2020" y="1456">No</text><text class="field" x="2115" y="1456">—</text>
+    <text class="field" x="1555" y="1490">status</text><text class="field" x="1845" y="1490">VARCHAR(20)</text><text class="field" x="2020" y="1490">No</text><text class="field" x="2115" y="1490">Default queued</text>
+    <text class="field" x="1555" y="1524">trigger_type</text><text class="field" x="1845" y="1524">VARCHAR(40)</text><text class="field" x="2020" y="1524">Yes</text><text class="field" x="2115" y="1524">—</text>
+    <text class="field" x="1555" y="1558">checkpoint_ref</text><text class="field" x="1845" y="1558">VARCHAR(255)</text><text class="field" x="2020" y="1558">Yes</text><text class="field" x="2115" y="1558">—</text>
+    <text class="field" x="1555" y="1592">error_code</text><text class="field" x="1845" y="1592">VARCHAR(80)</text><text class="field" x="2020" y="1592">Yes</text><text class="field" x="2115" y="1592">—</text>
+    <text class="field" x="1555" y="1626">created_at</text><text class="field" x="1845" y="1626">TIMESTAMPTZ</text><text class="field" x="2020" y="1626">No</text><text class="field" x="2115" y="1626">—</text>
+    <text class="field" x="1555" y="1660">started_at</text><text class="field" x="1845" y="1660">TIMESTAMPTZ</text><text class="field" x="2020" y="1660">Yes</text><text class="field" x="2115" y="1660">—</text>
+    <text class="field" x="1555" y="1694">completed_at</text><text class="field" x="1845" y="1694">TIMESTAMPTZ</text><text class="field" x="2020" y="1694">Yes</text><text class="field" x="2115" y="1694">—</text>
+  </g>
+
+  <rect class="legend-box" x="75" y="1645" width="1425" height="100" rx="10"/>
+  <text class="legend" x="100" y="1680"><tspan font-weight="700">PK</tspan> = primary key  •  <tspan font-weight="700">FK</tspan> = foreign key to leads.lead_id  •  NULL = Yes means optional</text>
+  <text class="legend" x="100" y="1712">On delete: CASCADE insights/scores/drafts/activities; SET NULL conversation summaries and agent runs.</text>
+  <text class="legend" x="100" y="1736">import_batches is independent and has no lead_id FK; imported lead rows are stored in leads.</text>
+  <text class="note" x="75" y="1780">TIMESTAMPTZ means timezone-aware timestamp (PostgreSQL); SQLite stores the SQLAlchemy DateTime equivalent.</text>
+  <text class="note" x="75" y="1802">* Lead duplicate matching uses normalized partial unique indexes. Defaults and constraints follow migration 0001_initial.</text>
+</svg>

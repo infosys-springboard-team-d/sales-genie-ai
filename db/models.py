@@ -164,11 +164,20 @@ class Activity(Base):
 
 class ConversationSummary(Base):
     __tablename__ = "conversation_summaries"
-    __table_args__ = (Index("ix_conversation_summaries_lead_created", "lead_id", "created_at"),)
+    __table_args__ = (
+        CheckConstraint(
+            "interaction_type IN ('call', 'meeting')",
+            name="ck_conversation_summaries_interaction_type",
+        ),
+        Index("ix_conversation_summaries_lead_created", "lead_id", "created_at"),
+    )
 
     summary_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     lead_id: Mapped[int | None] = mapped_column(
         ForeignKey("leads.lead_id", ondelete="SET NULL")
+    )
+    interaction_type: Mapped[str] = mapped_column(
+        String(20), nullable=False, server_default=text("'call'")
     )
     summary: Mapped[str] = mapped_column(Text, nullable=False)
     key_points: Mapped[list[Any]] = mapped_column(
@@ -177,6 +186,46 @@ class ConversationSummary(Base):
     action_items: Mapped[list[Any]] = mapped_column(
         JSON, nullable=False, default=list, server_default=text("'[]'")
     )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )
+
+
+class CrmSyncLog(Base):
+    __tablename__ = "crm_sync_logs"
+    __table_args__ = (
+        CheckConstraint(
+            "provider IN ('salesforce', 'hubspot')",
+            name="ck_crm_sync_logs_provider",
+        ),
+        CheckConstraint(
+            "entity_type IN ('contact', 'activity', 'deal_stage')",
+            name="ck_crm_sync_logs_entity_type",
+        ),
+        CheckConstraint(
+            "status IN ('succeeded', 'failed')",
+            name="ck_crm_sync_logs_status",
+        ),
+        Index("ix_crm_sync_logs_lead_created", "lead_id", "created_at"),
+        Index(
+            "ix_crm_sync_logs_provider_record",
+            "provider",
+            "entity_type",
+            "record_ref",
+            "status",
+        ),
+    )
+
+    crm_sync_log_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    lead_id: Mapped[int | None] = mapped_column(
+        ForeignKey("leads.lead_id", ondelete="SET NULL")
+    )
+    provider: Mapped[str] = mapped_column(String(20), nullable=False)
+    entity_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    record_ref: Mapped[str] = mapped_column(String(255), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False)
+    external_id: Mapped[str | None] = mapped_column(String(255))
+    error_code: Mapped[str | None] = mapped_column(String(80))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
