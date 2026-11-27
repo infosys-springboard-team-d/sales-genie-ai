@@ -6,6 +6,7 @@ from typing import Any
 from sqlalchemy import (
     CheckConstraint,
     DateTime,
+    Float,
     ForeignKey,
     Index,
     Integer,
@@ -60,6 +61,7 @@ class Lead(Base):
     lead_status: Mapped[str] = mapped_column(
         String(20), nullable=False, server_default=text("'New'")
     )
+    estimated_value: Mapped[float | None] = mapped_column(Float)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -295,3 +297,52 @@ class AgentRun(Base):
     )
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class SalesAnalytics(Base):
+    __tablename__ = "sales_analytics"
+    __table_args__ = (
+        CheckConstraint(
+            "period IN ('this_month', 'this_quarter', 'this_year', 'all_time')",
+            name="ck_sales_analytics_period",
+        ),
+        CheckConstraint(
+            "total_leads >= 0 AND won_leads >= 0",
+            name="ck_sales_analytics_counts_nonnegative",
+        ),
+        CheckConstraint(
+            "conversion_rate >= 0 AND conversion_rate <= 100",
+            name="ck_sales_analytics_conversion_range",
+        ),
+        CheckConstraint(
+            "pipeline_value >= 0",
+            name="ck_sales_analytics_pipeline_nonnegative",
+        ),
+        Index("ix_sales_analytics_period_computed", "period", "computed_at"),
+    )
+
+    analytics_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    period: Mapped[str] = mapped_column(String(20), nullable=False)
+    total_leads: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default=text("0")
+    )
+    won_leads: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default=text("0")
+    )
+    conversion_rate: Mapped[float] = mapped_column(
+        Float, nullable=False, server_default=text("0")
+    )
+    pipeline_value: Mapped[float] = mapped_column(
+        Float, nullable=False, server_default=text("0")
+    )
+    avg_response_time_hours: Mapped[float | None] = mapped_column(Float)
+    avg_sales_cycle_days: Mapped[float | None] = mapped_column(Float)
+    stage_breakdown: Mapped[dict[str, Any]] = mapped_column(
+        JSON, nullable=False, default=dict, server_default=text("'{}'")
+    )
+    follow_up_recommendations: Mapped[list[Any]] = mapped_column(
+        JSON, nullable=False, default=list, server_default=text("'[]'")
+    )
+    computed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=func.now()
+    )

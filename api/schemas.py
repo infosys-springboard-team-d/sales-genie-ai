@@ -25,7 +25,9 @@ class LeadCreate(BaseModel):
     contact_name: str | None = Field(default=None, max_length=255)
     email: str | None = Field(default=None, max_length=320)
     phone: str | None = Field(default=None, max_length=64)
+    estimated_value: float | None = Field(default=None, ge=0)
     lead_status: LeadStatus = LeadStatus.NEW
+    estimated_value: float | None = Field(default=None, ge=0)
 
     @field_validator("company_name", "industry", "contact_name", "email", "phone", mode="before")
     @classmethod
@@ -69,6 +71,7 @@ class LeadPatch(BaseModel):
     contact_name: str | None = Field(default=None, max_length=255)
     email: str | None = Field(default=None, max_length=320)
     phone: str | None = Field(default=None, max_length=64)
+    estimated_value: float | None = Field(default=None, ge=0)
 
     @field_validator("company_name", "industry", "contact_name", "email", "phone", mode="before")
     @classmethod
@@ -102,6 +105,7 @@ class LeadOut(BaseModel):
     email: str | None
     phone: str | None
     lead_status: LeadStatus
+    estimated_value: float | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -367,6 +371,99 @@ class CrmSyncLogOut(BaseModel):
     @field_validator("created_at")
     @classmethod
     def crm_sync_timestamp_is_utc(cls, value: datetime) -> datetime:
+        if value.tzinfo is None:
+            return value.replace(tzinfo=timezone.utc)
+        return value.astimezone(timezone.utc)
+
+
+AnalyticsPeriod = Literal["this_month", "this_quarter", "this_year", "all_time"]
+
+
+class PipelineLeadCardOut(BaseModel):
+    lead_id: int
+    company_name: str
+    contact_name: str | None
+    industry: str | None
+    lead_status: LeadStatus
+    estimated_value: float | None
+    latest_score: int | None
+    updated_at: datetime
+
+
+class PipelineStageOut(BaseModel):
+    stage: LeadStatus
+    label: str
+    count: int
+    total_value: float
+    leads: list[PipelineLeadCardOut]
+
+
+class FollowUpRecommendationOut(BaseModel):
+    lead_id: int
+    company_name: str
+    contact_name: str | None
+    lead_status: LeadStatus
+    priority: Literal["High Priority", "Medium Priority", "Low Priority"]
+    title: str
+    reason: str
+    suggested_action: str
+    recommended_channel: Literal["email", "call", "meeting", "review"]
+    score: int | None = None
+    timestamp: datetime
+
+
+class AnalyticsKpisOut(BaseModel):
+    total_leads: int
+    active_leads: int
+    won_leads: int
+    lost_leads: int
+    conversion_rate: float
+    conversion_rate_delta: float | None = None
+    pipeline_value: float
+    pipeline_value_delta_pct: float | None = None
+    valued_leads_count: int
+    avg_response_time_hours: float | None = None
+    avg_response_time_delta_minutes: float | None = None
+    avg_sales_cycle_days: float | None = None
+    avg_sales_cycle_delta_days: float | None = None
+
+
+class AnalyticsSummaryOut(BaseModel):
+    period: AnalyticsPeriod
+    analytics_id: int | None = None
+    computed_at: datetime
+    kpis: AnalyticsKpisOut
+    pipeline: list[PipelineStageOut]
+    follow_up_recommendations: list[FollowUpRecommendationOut]
+    recent_automation_activity: list["AutomationActivityItemOut"] = Field(default_factory=list)
+
+
+class AutomationActivityItemOut(BaseModel):
+    kind: Literal["insight", "score", "outreach", "conversation", "snapshot"]
+    title: str
+    description: str
+    timestamp: datetime
+    lead_id: int | None = None
+
+
+class SalesAnalyticsSnapshotOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    analytics_id: int
+    period: AnalyticsPeriod
+    total_leads: int
+    won_leads: int
+    conversion_rate: float
+    pipeline_value: float
+    avg_response_time_hours: float | None
+    avg_sales_cycle_days: float | None
+    stage_breakdown: dict[str, object]
+    follow_up_recommendations: list[dict[str, object]]
+    computed_at: datetime
+
+    @field_validator("computed_at")
+    @classmethod
+    def analytics_timestamp_is_utc(cls, value: datetime) -> datetime:
         if value.tzinfo is None:
             return value.replace(tzinfo=timezone.utc)
         return value.astimezone(timezone.utc)

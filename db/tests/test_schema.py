@@ -26,6 +26,7 @@ EXPECTED_TABLES = {
     "crm_sync_logs",
     "import_batches",
     "agent_runs",
+    "sales_analytics",
 }
 
 
@@ -64,6 +65,35 @@ class DatabaseMigrationTests(unittest.TestCase):
         }
         self.assertIn("ix_crm_sync_logs_lead_created", crm_indexes)
         self.assertIn("ix_crm_sync_logs_provider_record", crm_indexes)
+
+    def test_milestone4_sales_analytics_and_lead_value_exist(self) -> None:
+        lead_columns = {
+            column["name"] for column in inspect(self.engine).get_columns("leads")
+        }
+        self.assertIn("estimated_value", lead_columns)
+        analytics_columns = {
+            column["name"]
+            for column in inspect(self.engine).get_columns("sales_analytics")
+        }
+        self.assertTrue(
+            {
+                "analytics_id",
+                "period",
+                "total_leads",
+                "won_leads",
+                "conversion_rate",
+                "pipeline_value",
+                "avg_response_time_hours",
+                "avg_sales_cycle_days",
+                "stage_breakdown",
+                "follow_up_recommendations",
+                "computed_at",
+            }.issubset(analytics_columns)
+        )
+        analytics_indexes = {
+            index["name"] for index in inspect(self.engine).get_indexes("sales_analytics")
+        }
+        self.assertIn("ix_sales_analytics_period_computed", analytics_indexes)
 
     def test_migration_metadata_has_no_drift(self) -> None:
         command.check(self.config)
